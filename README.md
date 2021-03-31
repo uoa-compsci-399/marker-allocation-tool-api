@@ -15,12 +15,12 @@ Do not merge develop branch into main until we are ready to do a deployment and 
 
 
 # To run the scripe 
-create a directory
-cd into the directory created
+- create a directory
+- cd into the directory created
 
-npm install express
-npm install sqlite3
-npm run start
+- npm install express
+- npm install sqlite3
+- npm run start
 
 # Server.js
  will run at http://localhost:8000/api/
