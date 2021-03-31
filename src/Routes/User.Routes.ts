@@ -1,13 +1,13 @@
-const express = require("express");
-const db = require("../db/database");
+import express, { Request, Response, NextFunction } from "express";
+import db from "../db/database";
 
 const router = express.Router();
 
 // Get a list of users
-router.get("/users", (req, res, next) => {
+router.get("/users", (req: Request, res: Response, next: NextFunction) => {
   let sql = "select * from User";
-  let params = [];
-  db.all(sql, params, (err, rows) => {
+  let params: string[] = [];
+  db.all(sql, params, (err: any, rows: any) => {
     if (err) {
       res.status(400).json({ error: err.message });
       return;
@@ -20,23 +20,26 @@ router.get("/users", (req, res, next) => {
 });
 
 // Get a single user info(row) by userId
-router.get("/user/:userID", (req, res, next) => {
-  let sql = "select * from user where userID = ?";
-  let params = [req.params.userID];
-  db.get(sql, params, (err, row) => {
-    if (err) {
-      res.status(400).json({ error: err.message });
-      return;
-    }
-    res.json({
-      message: "success",
-      data: row,
+router.get(
+  "/user/:userID",
+  (req: Request, res: Response, next: NextFunction) => {
+    let sql = "select * from user where userID = ?";
+    let params = [req.params.userID];
+    db.get(sql, params, (err: any, row: any) => {
+      if (err) {
+        res.status(400).json({ error: err.message });
+        return;
+      }
+      res.json({
+        message: "success",
+        data: row,
+      });
     });
-  });
-});
+  }
+);
 
 // POST Insert a user
-router.post("/user/", (req, res, next) => {
+router.post("/user/", (req: Request, res: Response, next: NextFunction) => {
   let errors = [];
 
   if (!req.body.userID) {
@@ -75,7 +78,7 @@ router.post("/user/", (req, res, next) => {
     data.email,
     data.role,
   ];
-  db.run(sql, params, function (err, result) {
+  db.run(sql, params, function (err: any, result: any) {
     if (err) {
       res.status(400).json({ error: err.message });
       return;
@@ -87,4 +90,4 @@ router.post("/user/", (req, res, next) => {
   });
 });
 
-module.exports = router;
+export default router;

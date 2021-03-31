@@ -1,9 +1,9 @@
-var sqlite3 = require("sqlite3").verbose();
-var md5 = require("md5");
+import * as sqlite from "sqlite3";
 
+const sqlite3 = sqlite.verbose();
 const DBSOURCE = "db.sqlite";
 
-let db = new sqlite3.Database(DBSOURCE, (err) => {
+let db = new sqlite3.Database(DBSOURCE, (err: any) => {
   if (err) {
     // Cannot open database
     console.error(err.message);
@@ -80,12 +80,12 @@ let db = new sqlite3.Database(DBSOURCE, (err) => {
             UNIQUE("academicRecordID")
         );`,
 
-      (err) => {
+      (err: any) => {
         if (err) {
           // Table already created
         } else {
           // Table just created, creating some rows
-          var insert =
+          let insert =
             "INSERT INTO User (userID, firstName, lastName, email, role) VALUES (?,?,?,?,?)";
           db.run(insert, [
             "123",
@@ -101,4 +101,4 @@ let db = new sqlite3.Database(DBSOURCE, (err) => {
   }
 });
 
-module.exports = db;
+export default db;

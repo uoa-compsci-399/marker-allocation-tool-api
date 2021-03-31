@@ -7,7 +7,7 @@ Trello board: https://trello.com/b/mAYp4wAx/classe-a-web-based-tool-for-organisi
 To start working on a feature either:
 
 - work on a existing branch (not develop or main)
-- or checkout from develop and name the branch according the branch name specified in the trello item e.g. MAT-2
+- or checkout from develop and name the branch according the branch name specified in the Trello item e.g. MAT-2
 
 Once you are done with a branch create a pull request to develop.
 
@@ -15,17 +15,17 @@ Do not merge develop branch into main until we are ready to do a deployment and 
 
 # To run the script
 
-- create a directory
-- cd into the directory created
+1. After cloning the repository, run `npm install` or `yarn install`.
 
-- npm install express
-- npm install sqlite3
-- npm run start
+2. Run `npm run build` command. It has to be done before you run the project if you make any changes.
 
-# src/app.js
+3. `npm run dev` command will use Nodemon library to run the project.
 
-App will run at http://localhost:8000/
-API endpoint
+ - If you don't want to use Nodemon, `node build/index.js`. This requires the second step to be completed first anyway.
+
+The app will run at the port number 8000 by default.
+
+# API endpoints
 
 - GET a list of users
   http://localhost:8000/api/users
