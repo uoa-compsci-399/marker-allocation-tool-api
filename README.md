@@ -12,3 +12,27 @@ To start working on a feature either:
 Once you are done with a branch create a pull request to develop.
 
 Do not merge develop branch into main until we are ready to do a deployment and have done testing.
+
+
+# To run the scripe 
+create a directory
+cd into the directory created
+
+npm install express
+npm install sqlite3
+npm run start
+
+# Server.js
+ will run at http://localhost:8000/api/
+  API endpoint
+  - GET a list of users 
+      http://localhost:8000/api/users
+  - GET a single user using userID 
+      http://localhost:8000/api/user/(userID)
+  - POST a new user specifing (userID ,firstName, lastName, email, role) 
+ 
+
+# Database.js
+  Create a database if there are non inside the directory
+  insert some test users
+
