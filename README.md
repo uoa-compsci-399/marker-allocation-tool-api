@@ -2,7 +2,7 @@
 
 Trello board: https://trello.com/b/mAYp4wAx/classe-a-web-based-tool-for-organising-markers
 
-# Contributing 
+# Contributing
 
 To start working on a feature either:
 
@@ -13,8 +13,8 @@ Once you are done with a branch create a pull request to develop.
 
 Do not merge develop branch into main until we are ready to do a deployment and have done testing.
 
-
 # To run the script
+
 - create a directory
 - cd into the directory created
 
@@ -22,17 +22,18 @@ Do not merge develop branch into main until we are ready to do a deployment and 
 - npm install sqlite3
 - npm run start
 
-# Server.js
- will run at http://localhost:8000/api/
-  API endpoint
-  - GET a list of users 
-      http://localhost:8000/api/users
-  - GET a single user using userID 
-      http://localhost:8000/api/user/(userID)
-  - POST a new user specifing (userID ,firstName, lastName, email, role) 
- 
+# src/app.js
 
-# Database.js
-  - The script will create a database based on the ERD.
-  - insert some test users
+App will run at http://localhost:8000/
+API endpoint
 
+- GET a list of users
+  http://localhost:8000/api/users
+- GET a single user using userID
+  http://localhost:8000/api/user/(userID)
+- POST a new user specifing (userID ,firstName, lastName, email, role)
+
+# src/db/database.js
+
+- The script will create a database based on the ERD.
+- insert some test users
