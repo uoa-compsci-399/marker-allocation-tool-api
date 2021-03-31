@@ -33,6 +33,6 @@ Do not merge develop branch into main until we are ready to do a deployment and 
  
 
 # Database.js
-  Create a database if there are non inside the directory
-  insert some test users
+  - The scripe will create a database based on the ERD.
+  - insert some test users
 
