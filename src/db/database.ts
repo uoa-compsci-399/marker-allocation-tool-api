@@ -172,7 +172,7 @@ const db = new sqlite3.Database(DBSOURCE, (err: any) => {
       // Create applicant data
       const applicantInsert =
         'INSERT INTO Applicant (userID, degree, year, isEnrolled, GPA, hasVisa, inAuckland, academicRecord, applicantAccess) VALUES (?,?,?,?,?,?,?,?,?)';
-      const applicants = [[3, 'Science', 3, 'Yes', 5.0, 'Yes', 'Yes', 'Applicant Access']];
+      const applicants = [[3, 'Science', 3, 'Yes', 5.0, 'Yes', 'Yes', "", 'Applicant Access']];
 
       for (let i = 0; i < applicants.length; i++) {
         db.run(applicantInsert, applicants[i]);
