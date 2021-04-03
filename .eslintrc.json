@@ -23,7 +23,7 @@
                 "code": 100
             }
         ],
-        "prettier/prettier": "warn",
+        "prettier/prettier": ["warn", {"endOfLine":"auto"}],
         "no-console": "warn",
         "no-extra-boolean-cast": "warn",
         "@typescript-eslint/restrict-plus-operands": "warn",
