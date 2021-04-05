@@ -1,6 +1,6 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import bodyParser from 'body-parser';
-import userRoute from './Routes/User.Routes';
+import userRoute from './routes/User';
 
 const app: Application = express();
 
