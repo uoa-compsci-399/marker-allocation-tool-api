@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
-import db from '../db/database';
+import db from '../db/DBController';
 
 const router = express.Router();
 
@@ -7,32 +7,36 @@ const router = express.Router();
 router.get('/users', (req: Request, res: Response, next: NextFunction) => {
   const sql = 'select * from User';
   const params: string[] = [];
-  db.all(sql, params, (err: any, rows: any) => {
-    if (err) {
-      res.status(400).json({ error: err.message });
-      return;
+
+  db.all(sql, params).then(
+    (value) => {
+      res.json({
+        message: 'success',
+        data: value,
+      });
+    },
+    (reason) => {
+      res.status(400).json({ error: reason.message });
     }
-    res.json({
-      message: 'success',
-      data: rows,
-    });
-  });
+  );
 });
 
 // Get a single user info(row) by userId
 router.get('/user/:userID', (req: Request, res: Response, next: NextFunction) => {
   const sql = 'select * from user where userID = ?';
   const params = [req.params.userID];
-  db.get(sql, params, (err: any, row: any) => {
-    if (err) {
-      res.status(400).json({ error: err.message });
-      return;
+
+  db.get(sql, params).then(
+    (value) => {
+      res.json({
+        message: 'success',
+        data: value,
+      });
+    },
+    (reason) => {
+      res.status(400).json({ error: reason.message });
     }
-    res.json({
-      message: 'success',
-      data: row,
-    });
-  });
+  );
 });
 
 // POST Insert a user
@@ -68,16 +72,17 @@ router.post('/user/', (req: Request, res: Response, next: NextFunction) => {
 
   const sql = 'INSERT INTO User (userID, firstName, lastName, email, role) VALUES (?,?,?,?,?)';
   const params = [data.userID, data.firstName, data.lastName, data.email, data.role];
-  db.run(sql, params, function (err: any, result: any) {
-    if (err) {
-      res.status(400).json({ error: err.message });
-      return;
+  db.run(sql, params).then(
+    () => {
+      res.json({
+        message: 'success',
+        data: data,
+      });
+    },
+    (reason) => {
+      res.status(400).json({ error: reason.message });
     }
-    res.json({
-      message: 'success',
-      data: data,
-    });
-  });
+  );
 });
 
 export default router;
