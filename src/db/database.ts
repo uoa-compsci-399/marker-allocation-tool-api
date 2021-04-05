@@ -160,7 +160,7 @@ const db = new sqlite3.Database(DBSOURCE, (err: any) => {
 
       // Create user data
       const userInsert =
-        'INSERT INTO User (userID, firstName, lastName, email, role) VALUES (?,?,?,?,?)';
+        'INSERT OR IGNORE INTO User (userID, firstName, lastName, email, role) VALUES (?,?,?,?,?)';
       const users = [
         [1, 'Burkhard', 'Wuensche', 'burkhard@aucklanduni.ac.nz', 'MarkerCoordinator'],
         [2, 'Asma', 'Shakil', 'asma@aucklanduni.ac.nz', 'CourseCoordinator'],
@@ -169,51 +169,45 @@ const db = new sqlite3.Database(DBSOURCE, (err: any) => {
         [5, 'Jim', 'Park', 'jim@aucklanduni.ac.nz', 'Marker'],
       ];
 
-      for (let i = 0; i < users.length; i++) {
-        db.run(userInsert, users[i]);
-      }
+      users.forEach((user) => db.run(userInsert, user));
 
       // Create applicant data
       const applicantInsert =
-        'INSERT INTO Applicant (userID, degree, year, isEnrolled, GPA, hasVisa, inAuckland, academicRecord, applicantAccess) VALUES (?,?,?,?,?,?,?,?,?)';
+        'INSERT OR IGNORE INTO Applicant (userID, degree, year, isEnrolled, GPA, hasVisa, inAuckland, academicRecord, applicantAccess) VALUES (?,?,?,?,?,?,?,?,?)';
       const applicants = [[3, 'Science', 3, 'Yes', 5.0, 'Yes', 'Yes', '', 'Applicant Access']];
 
-      for (let i = 0; i < applicants.length; i++) {
-        db.run(applicantInsert, applicants[i]);
-      }
+      applicants.forEach((applicant) => db.run(applicantInsert, applicant));
 
       // Create marker data
-      const markerInsert = 'INSERT INTO Marker (userID, markerAccess) VALUES (?,?)';
+      const markerInsert = 'INSERT OR IGNORE INTO Marker (userID, markerAccess) VALUES (?,?)';
       const markers = [
         [4, 'Marker Access'],
         [5, 'Marker Access'],
       ];
 
-      for (let i = 0; i < markers.length; i++) {
-        db.run(markerInsert, markers[i]);
-      }
+      markers.forEach((marker) => db.run(markerInsert, marker));
 
       // Create marker coordinator data
       const markerCoordinatorInsert =
-        'INSERT INTO MarkerCoordinator (userID, markerCoordinatorAccess) VALUES (?,?)';
+        'INSERT OR IGNORE INTO MarkerCoordinator (userID, markerCoordinatorAccess) VALUES (?,?)';
       const markerCoordinators = [[1, 'Marker Coordinator Access']];
 
-      for (let i = 0; i < markerCoordinators.length; i++) {
-        db.run(markerCoordinatorInsert, markerCoordinators[i]);
-      }
+      markerCoordinators.forEach((markerCoordinator) =>
+        db.run(markerCoordinatorInsert, markerCoordinator)
+      );
 
       // Create course coordinator data
       const courseCoordinatorInsert =
-        'INSERT INTO CourseCoordinator (userID, courseCoordinatorAccess) VALUES (?,?)';
+        'INSERT OR IGNORE INTO CourseCoordinator (userID, courseCoordinatorAccess) VALUES (?,?)';
       const courseCoordinators = [[2, 'Course Coordinator Access']];
 
-      for (let i = 0; i < courseCoordinators.length; i++) {
-        db.run(courseCoordinatorInsert, courseCoordinators[i]);
-      }
+      courseCoordinators.forEach((courseCoordinator) =>
+        db.run(courseCoordinatorInsert, courseCoordinator)
+      );
 
       // Create course data
       const courseInsert =
-        'INSERT INTO Course (courseID, courseName, enrolmentEstimate, enrolmentFinal, workload, coordinatorID, courseInfoDeadline, applicationDeadline, markerPrefDeadline, markerAssignmentDeadline, otherTasks) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
+        'INSERT OR IGNORE INTO Course (courseID, courseName, enrolmentEstimate, enrolmentFinal, workload, coordinatorID, courseInfoDeadline, applicationDeadline, markerPrefDeadline, markerAssignmentDeadline, otherTasks) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
       const courses = [
         [
           1,
@@ -231,30 +225,26 @@ const db = new sqlite3.Database(DBSOURCE, (err: any) => {
         [2, 'COMPSCI 101', 300, 500, 80, 2, '', '', '', '', ''],
       ];
 
-      for (let i = 0; i < courses.length; i++) {
-        db.run(courseInsert, courses[i]);
-      }
+      courses.forEach((course) => db.run(courseInsert, course));
 
       // Create application data
       const applicationInsert =
-        'INSERT INTO Application (applicationID, applicantID, courseID, CV, relevantExperience) VALUES (?,?,?,?,?)';
+        'INSERT OR IGNORE INTO Application (applicationID, applicantID, courseID, CV, relevantExperience) VALUES (?,?,?,?,?)';
       const applications = [[1, 3, 2, '', "I've taught stuff"]];
 
-      for (let i = 0; i < applications.length; i++) {
-        db.run(applicationInsert, applications[i]);
-      }
+      applications.forEach((application) => db.run(applicationInsert, application));
 
       // Create marker assignment data
       const markerAssignmentInsert =
-        'INSERT INTO MarkerAssignment (markerID, courseID, year, semester, suitableForCourse) VALUES (?,?,?,?,?)';
+        'INSERT OR IGNORE INTO MarkerAssignment (markerID, courseID, year, semester, suitableForCourse) VALUES (?,?,?,?,?)';
       const markerAssignments = [
         [4, 1, 2021, 1, 'Yes'],
         [5, 2, 2021, 2, 'No'],
       ];
 
-      for (let i = 0; i < markerAssignments.length; i++) {
-        db.run(markerAssignmentInsert, markerAssignments[i]);
-      }
+      markerAssignments.forEach((markerAssignment) =>
+        db.run(markerAssignmentInsert, markerAssignment)
+      );
 
       db.close();
 
