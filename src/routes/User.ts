@@ -10,13 +10,10 @@ router.get('/users', (req: Request, res: Response, next: NextFunction) => {
 
   db.all(sql, params).then(
     (value) => {
-      res.json({
-        message: 'success',
-        data: value,
-      });
+      responseOk(res, value);
     },
     (reason) => {
-      res.status(400).json({ error: reason.message });
+      badRequest(res, reason.message);
     }
   );
 });
@@ -28,13 +25,10 @@ router.get('/user/:userID', (req: Request, res: Response, next: NextFunction) =>
 
   db.get(sql, params).then(
     (value) => {
-      res.json({
-        message: 'success',
-        data: value,
-      });
+      responseOk(res, value);
     },
     (reason) => {
-      res.status(400).json({ error: reason.message });
+      badRequest(res, reason.message);
     }
   );
 });
@@ -74,15 +68,23 @@ router.post('/user/', (req: Request, res: Response, next: NextFunction) => {
   const params = [data.userID, data.firstName, data.lastName, data.email, data.role];
   db.run(sql, params).then(
     () => {
-      res.json({
-        message: 'success',
-        data: data,
-      });
+      responseOk(res, data);
     },
     (reason) => {
-      res.status(400).json({ error: reason.message });
+      badRequest(res, reason.message);
     }
   );
 });
+
+const responseOk = (res: Response, data: any) => {
+  res.json({
+    message: 'success',
+    data: data,
+  });
+};
+
+const badRequest = (res: Response, error: string) => {
+  res.status(400).json({ error: error });
+};
 
 export default router;
