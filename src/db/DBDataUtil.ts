@@ -14,7 +14,7 @@ const dbUtil = (db: Database): void => {
             PRIMARY KEY("userID"),
             UNIQUE("email","userID")
           );`,
-      (err: any) => {
+      (err: Error) => {
         if (err) {
           // Table already created
           return console.log(err.message);
@@ -29,7 +29,7 @@ const dbUtil = (db: Database): void => {
             PRIMARY KEY("userID"),
             FOREIGN KEY("userID") REFERENCES "User"("userID")
           );`,
-      (err: any) => {
+      (err: Error) => {
         if (err) {
           // Table already created
           return console.log(err.message);
@@ -44,7 +44,7 @@ const dbUtil = (db: Database): void => {
             FOREIGN KEY("userID") REFERENCES "User"("userID"),
             PRIMARY KEY("userID")
           );`,
-      (err: any) => {
+      (err: Error) => {
         if (err) {
           // Table already created
           return console.log(err.message);
@@ -59,7 +59,7 @@ const dbUtil = (db: Database): void => {
             PRIMARY KEY("userID"),
             FOREIGN KEY("userID") REFERENCES "User"("userID")
           );`,
-      (err: any) => {
+      (err: Error) => {
         if (err) {
           // Table already created
           return console.log(err.message);
@@ -81,7 +81,7 @@ const dbUtil = (db: Database): void => {
             FOREIGN KEY("userID") REFERENCES "User"("userID"),
             PRIMARY KEY("userID")
           );`,
-      (err: any) => {
+      (err: Error) => {
         if (err) {
           // Table already created
           return console.log(err.message);
@@ -105,7 +105,7 @@ const dbUtil = (db: Database): void => {
             FOREIGN KEY("coordinatorID") REFERENCES "CourseCoordinator"("userID"),
             PRIMARY KEY("courseID")
           );`,
-      (err: any) => {
+      (err: Error) => {
         if (err) {
           // Table already created
           return console.log(err.message);
@@ -137,7 +137,7 @@ const dbUtil = (db: Database): void => {
             FOREIGN KEY("markerID") REFERENCES "Marker"("userID"),
             PRIMARY KEY("markerID","courseID")
           );`,
-      (err: any) => {
+      (err: Error) => {
         if (err) {
           // Table already created
           return console.log(err.message);
