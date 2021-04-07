@@ -1,10 +1,18 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Request, Response } from 'express';
 import db from '../db/DBController';
 
 const router = express.Router();
 
+interface RequestBody {
+  userID: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+}
+
 // Get a list of users
-router.get('/users', (req: Request, res: Response, next: NextFunction) => {
+router.get('/users', (req: Request, res: Response) => {
   const sql = 'select * from User';
   const params: string[] = [];
 
@@ -12,14 +20,14 @@ router.get('/users', (req: Request, res: Response, next: NextFunction) => {
     (value) => {
       responseOk(res, value);
     },
-    (reason) => {
+    (reason: Error) => {
       badRequest(res, reason.message);
     }
   );
 });
 
 // Get a single user info(row) by userId
-router.get('/user/:userID', (req: Request, res: Response, next: NextFunction) => {
+router.get('/user/:userID', (req: Request, res: Response) => {
   const sql = 'select * from user where userID = ?';
   const params = [req.params.userID];
 
@@ -27,42 +35,37 @@ router.get('/user/:userID', (req: Request, res: Response, next: NextFunction) =>
     (value) => {
       responseOk(res, value);
     },
-    (reason) => {
+    (reason: Error) => {
       badRequest(res, reason.message);
     }
   );
 });
 
 // POST Insert a user
-router.post('/user/', (req: Request, res: Response, next: NextFunction) => {
+router.post('/user/', (req: Request, res: Response) => {
   const errors = [];
 
-  if (!req.body.userID) {
+  const data = req.body as RequestBody;
+
+  if (!data.userID) {
     errors.push('No userId specified');
   }
-  if (!req.body.firstName) {
+  if (!data.firstName) {
     errors.push('No firstName specified');
   }
-  if (!req.body.lastName) {
+  if (!data.lastName) {
     errors.push('No lastName specified');
   }
-  if (!req.body.email) {
+  if (!data.email) {
     errors.push('No email specified');
   }
-  if (!req.body.role) {
+  if (!data.role) {
     errors.push('No role specified');
   }
   if (errors.length) {
     res.status(400).json({ error: errors.join(',') });
     return;
   }
-  const data = {
-    userID: req.body.userID,
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    email: req.body.email,
-    role: req.body.role,
-  };
 
   const sql = 'INSERT INTO User (userID, firstName, lastName, email, role) VALUES (?,?,?,?,?)';
   const params = [data.userID, data.firstName, data.lastName, data.email, data.role];
@@ -70,13 +73,13 @@ router.post('/user/', (req: Request, res: Response, next: NextFunction) => {
     () => {
       responseOk(res, data);
     },
-    (reason) => {
+    (reason: Error) => {
       badRequest(res, reason.message);
     }
   );
 });
 
-const responseOk = (res: Response, data: any) => {
+const responseOk = (res: Response, data: RequestBody) => {
   res.json({
     message: 'success',
     data: data,

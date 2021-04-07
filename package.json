@@ -1,38 +1,46 @@
 {
   "name": "express-api",
   "version": "1.0.0",
+  "author": "Team6Six",
   "description": "Express REST API",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
-    "start": "node src/index",
-    "build": "tsc",
+    "start": "yarn run build; node build/index.js",
+    "build": "rimraf ./build && tsc",
     "dev": "nodemon",
-    "test": "",
-    "format": "prettier --config .prettierrc.json --write src/**/*.ts",
-    "lint:check": "eslint .",
-    "lint": "eslint . --fix",
+    "format": "prettier --config .prettierrc.json --write .",
+    "lint": "eslint --ext .tsx,.ts,.js . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
     "prepare": "husky install"
   },
-  "author": "Team6Six",
-  "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.19.0",
     "express": "^4.17.1",
     "md5": "^2.3.0",
     "sqlite3": "^5.0.2"
   },
   "devDependencies": {
+    "@types/body-parser": "^1.19.0",
     "@types/express": "^4.17.11",
     "@types/sqlite3": "^3.1.7",
     "@typescript-eslint/eslint-plugin": "^4.20.0",
-    "eslint-plugin-prettier": "^3.3.1",
     "@typescript-eslint/parser": "^4.20.0",
     "env-cmd": "^10.1.0",
     "eslint": "^7.23.0",
+    "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-prettier": "^3.3.1",
     "husky": "^6.0.0",
     "nodemon": "^2.0.7",
+    "onchange": "^7.1.0",
     "prettier": "^2.2.1",
+    "rimraf": "^3.0.2",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.3"
-  }
+  },
+  "volta": {
+    "node": "14.16.0",
+    "yarn": "1.22.10"
+  },
+  "license": "ISC"
 }

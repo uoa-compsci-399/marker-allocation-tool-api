@@ -15,15 +15,20 @@ Do not merge develop branch into main until we are ready to do a deployment and 
 
 # To run the script
 
-1. After cloning the repository, run `npm install` or `yarn install`.
+1. After cloning the repository, run `yarn install`.
 
-2. Run `npm run build` command. It has to be done before you run the project if you make any changes.
+2. Then to install Yarn: `npm install -g yarn`
 
-3. `npm run dev` command will use Nodemon library to run the project.
+3. Install https://volta.sh/ for automatic node & yarn version management
 
- - If you don't want to use Nodemon, `node build/index.js`. This requires the second step to be completed first anyway.
+4. From project root run `yarn install`
 
-The app will run at the port number 8000 by default.
+5. Run `yarn run dev` command will use Nodemon package to run the server.
+
+6. If you don't want to use Nodemon run `yarn run start`, but you will have
+   to restart whenever you make changes.
+
+7. Open in http://localhost:8000/
 
 # API endpoints
 
