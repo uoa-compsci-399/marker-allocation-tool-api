@@ -13,7 +13,7 @@ Once you are done with a branch create a pull request to develop.
 
 Do not merge develop branch into main until we are ready to do a deployment and have done testing.
 
-# To run the script
+# Getting Started
 
 1. After cloning the repository, run `yarn install`.
 
