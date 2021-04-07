@@ -1,16 +1,9 @@
 import * as sqlite from 'sqlite3';
 import DBDataUtil from './DBDataUtil';
+import { RequestBody } from '../utils/RequestBody';
 
 const sqlite3 = sqlite.verbose();
 const DBSOURCE = 'db.sqlite';
-
-interface RequestBody {
-  userID: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string;
-}
 
 type Id = { id: number };
 

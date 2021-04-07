@@ -1,15 +1,8 @@
 import express, { Request, Response } from 'express';
 import db from '../db/DBController';
+import { RequestBody } from '../utils/RequestBody';
 
 const router = express.Router();
-
-interface RequestBody {
-  userID: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string;
-}
 
 // Get a list of users
 router.get('/users', (req: Request, res: Response) => {
