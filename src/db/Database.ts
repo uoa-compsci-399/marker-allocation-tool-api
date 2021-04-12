@@ -1,14 +1,14 @@
-import * as sqlite from 'sqlite3';
+import * as sqlite3 from 'sqlite3';
 import DBDataUtil from './DBDataUtil';
 import { RequestBody } from '../utils/RequestBody';
 
-const sqlite3 = sqlite.verbose();
+sqlite3.verbose();
 const DBSOURCE = 'db.sqlite';
 
 type Id = { id: number };
 
 export default class Database {
-  private db: sqlite.Database;
+  private db: sqlite3.Database;
 
   constructor() {
     this.db = new sqlite3.Database(DBSOURCE, (err) => {

@@ -1,7 +1,7 @@
-import { Database as SQLite3Database } from 'sqlite3';
+import * as sqlite3 from 'sqlite3';
 
 export default class DBDataUtil {
-  private static createTable(db: SQLite3Database, name: string, cols: string[]): void {
+  private static createTable(db: sqlite3.Database, name: string, cols: string[]): void {
     const sqlCols = cols.join(', ');
     const sqlCmd = `CREATE TABLE IF NOT EXISTS "${name}" (${sqlCols});`;
     db.run(sqlCmd, (err: Error) => {
@@ -10,7 +10,7 @@ export default class DBDataUtil {
     });
   }
 
-  static createTables(db: SQLite3Database): void {
+  static createTables(db: sqlite3.Database): void {
     db.serialize(() => {
       this.createTable(db, 'Course', [
         '"courseID"	INTEGER PRIMARY KEY',
@@ -82,7 +82,7 @@ export default class DBDataUtil {
     });
   }
 
-  static populateTables(db: SQLite3Database): void {
+  static populateTables(db: sqlite3.Database): void {
     db.serialize(() => {
       // Create user data
       const userInsert =
@@ -174,7 +174,7 @@ export default class DBDataUtil {
     });
   }
 
-  static initialize(db: SQLite3Database): void {
+  static initialize(db: sqlite3.Database): void {
     console.log('Creating tables...');
     this.createTables(db);
 
