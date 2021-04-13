@@ -17,7 +17,8 @@ export default class Database {
         console.error(err.message);
         throw err;
       } else {
-        DBDataUtil.initialize(this.db);
+				DBDataUtil.initialize(this.db);
+				this.db.close();
       }
     });
   }
