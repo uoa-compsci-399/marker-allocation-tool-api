@@ -1,60 +1,10 @@
 import * as sqlite3 from 'sqlite3';
+import SQLiteUtil from './SQLiteUtil';
 
 export default class DBDataUtil {
-  private static createTable(db: sqlite3.Database, name: string, cols: string[]): void {
-    const sqlCols = cols.join(', ');
-    const sqlCmd = `CREATE TABLE IF NOT EXISTS "${name}" (${sqlCols});`;
-    db.run(sqlCmd, (err: Error) => {
-      if (err == null) return;
-      console.error(err);
-    });
-  }
-
-  private static insertIntoTableAsObject(
-    db: sqlite3.Database,
-    onFailIgnore: boolean,
-    tableName: string,
-    row: Record<string, unknown>
-  ): void {
-    const sqlKeys = Object.keys(row).join(', ');
-    const sqlValues = Object.keys(row)
-      .map(() => `?`)
-      .join(', ');
-    const sqlRow = `(${sqlKeys}) VALUES (${sqlValues})`;
-    const sqlVerb = onFailIgnore ? 'INSERT OR IGNORE INTO' : 'INSERT INTO';
-    const sqlCmd = `${sqlVerb} "${tableName}" ${sqlRow}`;
-    db.serialize(() => {
-      db.run(sqlCmd, Object.values(row), (err: Error) => {
-        if (err == null) return;
-        console.error(err);
-      });
-    });
-  }
-
-  private static insertMultipleIntoTableAsArrayObject(
-    db: sqlite3.Database,
-    onFailIgnore: boolean,
-    tableName: string,
-    subtable: Record<string, unknown[]>
-  ): void {
-    const subcolLengths = Object.values(subtable).map((subcol) => subcol.length);
-    if (new Set(subcolLengths).size > 1) {
-      throw new Error('All value arrays in subtable must be the same length');
-    }
-
-    let row: Record<string, unknown>;
-    for (let i = 0; i < subcolLengths[0]; i++) {
-      row = {};
-      Object.keys(subtable).forEach((key) => {
-        row[key] = subtable[key][i];
-      });
-      this.insertIntoTableAsObject(db, onFailIgnore, tableName, row);
-    }
-  }
-
   static createTables(db: sqlite3.Database): void {
     db.serialize(() => {
-      this.createTable(db, 'Course', [
+      SQLiteUtil.createTable(db, 'Course', [
         '"courseID"	INTEGER PRIMARY KEY',
         '"courseName"	TEXT NOT NULL',
         '"year"	INTEGER NOT NULL',
@@ -70,7 +20,7 @@ export default class DBDataUtil {
         '"otherTasks"	TEXT',
       ]);
 
-      this.createTable(db, 'Application', [
+      SQLiteUtil.createTable(db, 'Application', [
         '"applicationID"	INTEGER PRIMARY KEY',
         '"markerID"	INTEGER NOT NULL REFERENCES "Marker"("userID")',
         '"year"	INTEGER NOT NULL',
@@ -81,7 +31,7 @@ export default class DBDataUtil {
         '"relevantExperience"	TEXT',
       ]);
 
-      this.createTable(db, 'ApplicationCourse', [
+      SQLiteUtil.createTable(db, 'ApplicationCourse', [
         '"applicationCourseID"	INTEGER PRIMARY KEY',
         '"applicationID"	INTEGER NOT NULL REFERENCES "Application"("applicationID")',
         '"courseID"	INTEGER NOT NULL REFERENCES "Course"("courseID")',
@@ -90,7 +40,7 @@ export default class DBDataUtil {
         '"claimGradeAchieved"	TEXT',
       ]);
 
-      this.createTable(db, 'User', [
+      SQLiteUtil.createTable(db, 'User', [
         '"userID"	INTEGER PRIMARY KEY',
         '"firstName"	TEXT NOT NULL',
         '"lastName"	TEXT NOT NULL',
@@ -98,24 +48,24 @@ export default class DBDataUtil {
         '"role"	TEXT NOT NULL',
       ]);
 
-      this.createTable(db, 'MarkerCoordinator', [
+      SQLiteUtil.createTable(db, 'MarkerCoordinator', [
         '"userID"	INTEGER PRIMARY KEY REFERENCES "User"("userID")',
         //'"markerCoordinatorAccess"	TEXT NOT NULL',
       ]);
 
-      this.createTable(db, 'CourseCoordinator', [
+      SQLiteUtil.createTable(db, 'CourseCoordinator', [
         '"userID"	INTEGER PRIMARY KEY REFERENCES "User"("userID")',
         //'"courseCoordinatorAccess"	TEXT NOT NULL',
       ]);
 
-      this.createTable(db, 'CourseCoordinatorCourse', [
+      SQLiteUtil.createTable(db, 'CourseCoordinatorCourse', [
         '"courseCoordinatorCourseID"	INTEGER PRIMARY KEY',
         '"courseCoordinatorID"	INTEGER REFERENCES "CourseCoordinator"("userID")',
         '"courseID"	INTEGER REFERENCES "Course"("courseID")',
         '"permissions"	INTEGER NOT NULL',
       ]);
 
-      this.createTable(db, 'Marker', [
+      SQLiteUtil.createTable(db, 'Marker', [
         '"userID"	INTEGER PRIMARY KEY REFERENCES "User"("userID")',
         //'"markerAccess"	TEXT NOT NULL',
         '"upi" TEXT NOT NULL',
@@ -134,7 +84,7 @@ export default class DBDataUtil {
   static populateTables(db: sqlite3.Database): void {
     db.serialize(() => {
       // Create user data
-      this.insertMultipleIntoTableAsArrayObject(db, true, 'User', {
+      SQLiteUtil.insertMultipleIntoTableAsArrayObject(db, true, 'User', {
         userID: [1, 2, 3, 4, 5],
         firstName: ['Burkahrd', 'Asma', 'Songyan', 'Darren', 'Jim'],
         lastName: ['Wuensche', 'Shakil', 'Teng', 'Chen', 'Park'],
@@ -145,7 +95,7 @@ export default class DBDataUtil {
       });
 
       // Create marker data
-      this.insertMultipleIntoTableAsArrayObject(db, true, 'Marker', {
+      SQLiteUtil.insertMultipleIntoTableAsArrayObject(db, true, 'Marker', {
         userID: [3, 4, 5],
         upi: ['sten187', 'cche795', 'jpar914'],
         studentID: ['883789472', '809097908', '5615303'],
@@ -159,16 +109,16 @@ export default class DBDataUtil {
       });
 
       // Create marker coordinator data
-      this.insertIntoTableAsObject(db, true, 'MarkerCoordinator', {
+      SQLiteUtil.insertIntoTableAsObject(db, true, 'MarkerCoordinator', {
         userID: 1,
       });
 
       // Create course coordinator data
-      this.insertIntoTableAsObject(db, true, 'CourseCoordinator', {
+      SQLiteUtil.insertIntoTableAsObject(db, true, 'CourseCoordinator', {
         userID: 2,
       });
 
-      this.insertMultipleIntoTableAsArrayObject(db, true, 'CourseCoordinatorCourse', {
+      SQLiteUtil.insertMultipleIntoTableAsArrayObject(db, true, 'CourseCoordinatorCourse', {
         courseCoordinatorCourseID: [1, 2],
         courseCoordinatorID: [2, 2],
         courseID: [1, 2],
@@ -176,7 +126,7 @@ export default class DBDataUtil {
       });
 
       // Create course data
-      this.insertMultipleIntoTableAsArrayObject(db, true, 'Course', {
+      SQLiteUtil.insertMultipleIntoTableAsArrayObject(db, true, 'Course', {
         courseID: [1, 2],
         courseName: ['COMPSCI 399', 'COMPSCI 101'],
         year: [2021, 2021],
@@ -193,7 +143,7 @@ export default class DBDataUtil {
       });
 
       // Create application data
-      this.insertMultipleIntoTableAsArrayObject(db, true, 'Application', {
+      SQLiteUtil.insertMultipleIntoTableAsArrayObject(db, true, 'Application', {
         applicationID: [1],
         markerID: [3],
         year: [2021],
@@ -204,7 +154,7 @@ export default class DBDataUtil {
         relevantExperience: ["I've taught stuff"],
       });
 
-      this.insertMultipleIntoTableAsArrayObject(db, true, 'ApplicationCourse', {
+      SQLiteUtil.insertMultipleIntoTableAsArrayObject(db, true, 'ApplicationCourse', {
         applicationCourseID: [1],
         applicationID: [1],
         courseID: [2],
