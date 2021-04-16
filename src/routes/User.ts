@@ -1,37 +1,69 @@
 import express, { Request, Response } from 'express';
+// import { sqlite3 } from 'sqlite3';
 import db from '../db/DBController';
-import { UserRequest, ApplicationRequest } from '../utils/RequestBody';
+import { RequestBody, UserRequest, ApplicationRequest, CourseRequest } from '../utils/RequestBody';
 
 const router = express.Router();
 
-// Get a list of users
-router.get('/users', (req: Request, res: Response) => {
-  const sql = 'SELECT * FROM User';
+// Gets list of all values from table
+const getAllData = (req: Request, res: Response, table: string) => {
+  const sql = 'SELECT * FROM ' + table;
   const params: string[] = [];
 
   db.all(sql, params).then(
     (value) => {
-      userResponseOk(res, value);
+      responseOk(res, value);
     },
     (reason: Error) => {
       badRequest(res, reason.message);
     }
   );
-});
+};
 
-// Get a single user info(row) by userId
-router.get('/user/:userID', (req: Request, res: Response) => {
-  const sql = 'SELECT * FROM User WHERE userID = ?';
-  const params = [req.params.userID];
+// Get a single row by id
+const getSingleRow = (req: Request, res: Response, table: string, id: string) => {
+  const sql = 'SELECT * FROM ' + table + ' WHERE ' + id + ' = ?';
+  const reqString = 'req.params.' + id;
+  const params = [eval(reqString)];
 
   db.get(sql, params).then(
     (value) => {
-      userResponseOk(res, value);
+      responseOk(res, value);
     },
     (reason: Error) => {
       badRequest(res, reason.message);
     }
   );
+};
+
+// Get a list of users
+router.get('/users', (req: Request, res: Response) => {
+  getAllData(req, res, 'User');
+});
+
+// Get a list of applications
+router.get('/applications', (req: Request, res: Response) => {
+  getAllData(req, res, 'Application');
+});
+
+// Get a list of courses
+router.get('/courses', (req: Request, res: Response) => {
+  getAllData(req, res, 'Course');
+});
+
+// Get a single user row by userID
+router.get('/user/:userID', (req: Request, res: Response) => {
+  getSingleRow(req, res, 'User', 'userID');
+});
+
+// Get a single application row by applicationID
+router.get('/application/:applicationID', (req: Request, res: Response) => {
+  getSingleRow(req, res, 'Application', 'applicationID');
+});
+
+// Get a single course row by courseID
+router.get('/course/:courseID', (req: Request, res: Response) => {
+  getSingleRow(req, res, 'Course', 'courseID');
 });
 
 // POST Insert a user
@@ -41,7 +73,7 @@ router.post('/user/', (req: Request, res: Response) => {
   const data = req.body as UserRequest;
 
   if (!data.userID) {
-    errors.push('No userId specified');
+    errors.push('No userID specified');
   }
   if (!data.firstName) {
     errors.push('No firstName specified');
@@ -65,7 +97,7 @@ router.post('/user/', (req: Request, res: Response) => {
 
   db.run(sql, params).then(
     () => {
-      userResponseOk(res, data);
+      responseOk(res, data);
     },
     (reason: Error) => {
       badRequest(res, reason.message);
@@ -73,53 +105,32 @@ router.post('/user/', (req: Request, res: Response) => {
   );
 });
 
-// Get a list of applications
-router.get('/applications', (req: Request, res: Response) => {
-  const sql = 'SELECT * FROM Application';
-  const params: string[] = [];
-
-  db.all(sql, params).then(
-    (value) => {
-      applicationResponseOk(res, value);
-    },
-    (reason: Error) => {
-      badRequest(res, reason.message);
-    }
-  );
-});
-
-// Get a single user info(row) by applicationId
-router.get('/application/:applicationID', (req: Request, res: Response) => {
-  const sql = 'SELECT * FROM Application WHERE applicationID = ?';
-  const params = [req.params.applicationID];
-
-  db.get(sql, params).then(
-    (value) => {
-      applicationResponseOk(res, value);
-    },
-    (reason: Error) => {
-      badRequest(res, reason.message);
-    }
-  );
-});
-
-// POST Insert a user
+// POST Insert a application
 router.post('/application/', (req: Request, res: Response) => {
   const errors = [];
 
   const data = req.body as ApplicationRequest;
 
   if (!data.applicationID) {
-    errors.push('No applicationId specified');
+    errors.push('No applicationID specified');
   }
-  if (!data.applicantID) {
-    errors.push('No applicantID specified');
+  if (!data.markerID) {
+    errors.push('No markerID specified');
   }
-  if (!data.courseID) {
-    errors.push('No courseID specified');
+  if (!data.year) {
+    errors.push('No year specified');
   }
-  if (!data.CV) {
-    errors.push('No CV specified');
+  if (!data.whichSemestersField) {
+    errors.push('No whichSemestersField specified');
+  }
+  if (!data.curriculumVitae) {
+    errors.push('No curriculumVitae specified');
+  }
+  if (!data.academicRecord) {
+    errors.push('No academicRecord specified');
+  }
+  if (!data.hoursRequested) {
+    errors.push('No hoursRequested specified');
   }
 
   if (errors.length) {
@@ -128,18 +139,21 @@ router.post('/application/', (req: Request, res: Response) => {
   }
 
   const sql =
-    'INSERT INTO Application (applicationID, applicantID, courseID, CV, relevantExperience) VALUES (?,?,?,?,?)';
+    'INSERT INTO Application (applicationID, markerID, year, whichSemestersField, curriculumVitae, academicRecord, hoursRequested, relevantExperience) VALUES (?,?,?,?,?,?,?,?)';
   const params = [
     data.applicationID,
-    data.applicantID,
-    data.courseID,
-    data.CV,
+    data.markerID,
+    data.year,
+    data.whichSemestersField,
+    data.curriculumVitae,
+    data.academicRecord,
+    data.hoursRequested,
     data.relevantExperience ? data.relevantExperience : '',
   ];
 
   db.run(sql, params).then(
     () => {
-      applicationResponseOk(res, data);
+      responseOk(res, data);
     },
     (reason: Error) => {
       badRequest(res, reason.message);
@@ -147,14 +161,71 @@ router.post('/application/', (req: Request, res: Response) => {
   );
 });
 
-const userResponseOk = (res: Response, data: UserRequest) => {
-  res.json({
-    message: 'success',
-    data: data,
-  });
-};
+// POST Insert a course
+router.post('/course/', (req: Request, res: Response) => {
+  const errors = [];
 
-const applicationResponseOk = (res: Response, data: ApplicationRequest) => {
+  const data = req.body as CourseRequest;
+
+  if (!data.courseID) {
+    errors.push('No courseID specified');
+  }
+  if (!data.courseName) {
+    errors.push('No courseName specified');
+  }
+  if (!data.year) {
+    errors.push('No year specified');
+  }
+  if (!data.whichSemestersField) {
+    errors.push('No whichSemestersField specified');
+  }
+  if (!data.isPublished) {
+    errors.push('No isPublished specified');
+  }
+  if (!data.enrolmentEstimate) {
+    errors.push('No enrolmentEstimate specified');
+  }
+  if (!data.enrolmentFinal) {
+    errors.push('No enrolmentFinal specified');
+  }
+  if (!data.workload) {
+    errors.push('No workload specified');
+  }
+
+  if (errors.length) {
+    res.status(400).json({ error: errors.join(',') });
+    return;
+  }
+
+  const sql =
+    'INSERT INTO Course (courseID, courseName, year, whichSemestersField, isPublished, enrolmentEstimate, enrolmentFinal, workload, courseInfoDeadline, applicationDeadline, markerPrefDeadline, markerAssignmentDeadline, otherTasks) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
+  const params = [
+    data.courseID,
+    data.courseName,
+    data.year,
+    data.whichSemestersField,
+    data.isPublished,
+    data.enrolmentEstimate,
+    data.enrolmentFinal,
+    data.workload,
+    data.courseInfoDeadline ? data.courseInfoDeadline : '',
+    data.applicationDeadline ? data.applicationDeadline : '',
+    data.markerPrefDeadline ? data.markerPrefDeadline : '',
+    data.markerAssignmentDeadline ? data.markerAssignmentDeadline : '',
+    data.otherTasks ? data.otherTasks : '',
+  ];
+
+  db.run(sql, params).then(
+    () => {
+      responseOk(res, data);
+    },
+    (reason: Error) => {
+      badRequest(res, reason.message);
+    }
+  );
+});
+
+const responseOk = (res: Response, data: RequestBody) => {
   res.json({
     message: 'success',
     data: data,

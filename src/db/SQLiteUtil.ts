@@ -52,4 +52,3 @@ export default class SQLiteUtil {
     }
   }
 }
-

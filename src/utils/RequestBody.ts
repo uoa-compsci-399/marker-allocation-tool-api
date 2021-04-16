@@ -1,4 +1,8 @@
-export interface UserRequest {
+export interface RequestBody {
+  id: string;
+}
+
+export interface UserRequest extends RequestBody {
   userID: string;
   firstName: string;
   lastName: string;
@@ -6,10 +10,29 @@ export interface UserRequest {
   role: string;
 }
 
-export interface ApplicationRequest {
+export interface ApplicationRequest extends RequestBody {
   applicationID: string;
-  applicantID: string;
-  courseID: string;
-  CV: string;
+  markerID: string;
+  year: string;
+  whichSemestersField: string;
+  curriculumVitae: string;
+  academicRecord: string;
+  hoursRequested: string;
   relevantExperience: string;
+}
+
+export interface CourseRequest extends RequestBody {
+  courseID: string;
+  courseName: string;
+  year: string;
+  whichSemestersField: string;
+  isPublished: string;
+  enrolmentEstimate: string;
+  enrolmentFinal: string;
+  workload: string;
+  courseInfoDeadline: string;
+  applicationDeadline: string;
+  markerPrefDeadline: string;
+  markerAssignmentDeadline: string;
+  otherTasks: string;
 }

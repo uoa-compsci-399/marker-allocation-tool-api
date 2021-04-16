@@ -86,7 +86,7 @@ export default class DBDataUtil {
       // Create user data
       SQLiteUtil.insertMultipleIntoTableAsArrayObject(db, true, 'User', {
         userID: [1, 2, 3, 4, 5],
-        firstName: ['Burkahrd', 'Asma', 'Songyan', 'Darren', 'Jim'],
+        firstName: ['Burkhard', 'Asma', 'Songyan', 'Darren', 'Jim'],
         lastName: ['Wuensche', 'Shakil', 'Teng', 'Chen', 'Park'],
         email: ['burkhard', 'asma', 'songyan', 'darren', 'jim'].map(
           (fn) => `${fn}@aucklanduni.ac.nz`
