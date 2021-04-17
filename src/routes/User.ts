@@ -51,6 +51,21 @@ router.get('/courses', (req: Request, res: Response) => {
   getAllData(req, res, 'Course');
 });
 
+// Get a list of available/open courses
+router.get('/availableCourses', (req: Request, res: Response) => {
+  const sql = "SELECT * FROM Course WHERE DATE('now') <= DATE(applicationDeadline)";
+  const params: string[] = [];
+
+  db.all(sql, params).then(
+    (value) => {
+      responseOk(res, value);
+    },
+    (reason: Error) => {
+      badRequest(res, reason.message);
+    }
+  );
+});
+
 // Get a single user row by userID
 router.get('/user/:userID', (req: Request, res: Response) => {
   getSingleRow(req, res, 'User', 'userID');
