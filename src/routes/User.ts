@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-// import { sqlite3 } from 'sqlite3';
+
 import db from '../db/DBController';
 import {
   RequestBody,
@@ -8,6 +8,8 @@ import {
   CourseRequest,
   CourseID,
 } from '../utils/RequestBody';
+
+//TODO: Split this file into individual route files
 
 const router = express.Router();
 
@@ -162,53 +164,14 @@ router.post('/application/', (req: Request, res: Response) => {
     return;
   }
 
-  const sql =
-    'INSERT INTO Application (applicationID, markerID, year, whichSemestersField, appliedCourses, curriculumVitae, academicRecord, hoursRequested, relevantExperience) VALUES (?,?,?,?,?,?,?,?,?)';
-  const params = [
-    data.applicationID,
-    data.markerID,
-    data.year,
-    data.whichSemestersField,
-    data.appliedCourses,
-    data.curriculumVitae,
-    data.academicRecord,
-    data.hoursRequested,
-    data.relevantExperience ? data.relevantExperience : '',
-  ];
-
-  db.run(sql, params).then(
+  handleApplicationInsert(data).then(
     () => {
-      //responseOk(res, data);
+      responseOk(res, data);
     },
     (reason: Error) => {
       badRequest(res, reason.message);
     }
   );
-
-  const appliedCourseList = data.appliedCourses.split(',');
-
-  appliedCourseList.forEach((course) => {
-    const getCourseID = 'SELECT courseID FROM Course WHERE courseName = ?';
-
-    db.get(getCourseID, [course]).then(
-      (value: CourseID) => {
-        const query =
-          'INSERT INTO ApplicationCourse (applicationID, courseID, status, hoursAllocated) VALUES (?,?,?,?)';
-        const param = [data.applicationID, value.courseID, '0', '0'];
-        db.run(query, param).then(
-          () => {
-            responseOk(res, data);
-          },
-          (reason: Error) => {
-            badRequest(res, reason.message + '----');
-          }
-        );
-      },
-      (reason: Error) => {
-        badRequest(res, reason.message);
-      }
-    );
-  });
 });
 
 // POST Insert a course
@@ -274,6 +237,40 @@ router.post('/course/', (req: Request, res: Response) => {
     }
   );
 });
+
+const handleApplicationInsert = async (data: ApplicationRequest) => {
+  const sql =
+    'INSERT INTO Application (applicationID, markerID, year, whichSemestersField, appliedCourses, curriculumVitae, academicRecord, hoursRequested, relevantExperience) VALUES (?,?,?,?,?,?,?,?,?)';
+  const params = [
+    data.applicationID,
+    data.markerID,
+    data.year,
+    data.whichSemestersField,
+    data.appliedCourses,
+    data.curriculumVitae,
+    data.academicRecord,
+    data.hoursRequested,
+    data.relevantExperience ? data.relevantExperience : '',
+  ];
+
+  await db.run(sql, params);
+
+  const appliedCourseList = data.appliedCourses.split(',');
+
+  for (const course of appliedCourseList) {
+    const getCourseID = 'SELECT courseID FROM Course WHERE courseName = ?';
+
+    const courseID: string = await db
+      .get(getCourseID, [course.trim()])
+      .then((value: CourseID) => value.courseID);
+
+    const query =
+      'INSERT INTO ApplicationCourse (applicationID, courseID, status, hoursAllocated) VALUES (?,?,?,?)';
+    const param = [data.applicationID, courseID, '0', '0'];
+
+    await db.run(query, param);
+  }
+};
 
 const responseOk = (res: Response, data: RequestBody) => {
   res.json({
