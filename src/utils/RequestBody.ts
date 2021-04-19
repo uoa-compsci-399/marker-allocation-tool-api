@@ -37,3 +37,7 @@ export interface CourseRequest extends RequestBody {
   markerAssignmentDeadline: string;
   otherTasks: string;
 }
+
+export interface CourseID extends RequestBody {
+  courseID: string;
+}

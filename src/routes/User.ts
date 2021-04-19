@@ -1,7 +1,13 @@
 import express, { Request, Response } from 'express';
 // import { sqlite3 } from 'sqlite3';
 import db from '../db/DBController';
-import { RequestBody, UserRequest, ApplicationRequest, CourseRequest } from '../utils/RequestBody';
+import {
+  RequestBody,
+  UserRequest,
+  ApplicationRequest,
+  CourseRequest,
+  CourseID,
+} from '../utils/RequestBody';
 
 const router = express.Router();
 
@@ -172,27 +178,37 @@ router.post('/application/', (req: Request, res: Response) => {
 
   db.run(sql, params).then(
     () => {
-      responseOk(res, data);
+      //responseOk(res, data);
     },
     (reason: Error) => {
       badRequest(res, reason.message);
     }
   );
 
-  // Below section is new
+  const appliedCourseList = data.appliedCourses.split(',');
 
-  /*const appliedCourseList = data.appliedCourses.split(',');
-
-  appliedCourseList.forEach(function (course) {
+  appliedCourseList.forEach((course) => {
     const getCourseID = 'SELECT courseID FROM Course WHERE courseName = ?';
 
-    db.get(getCourseID, [course]).then(function (value) {
-      const sql =
-        'INSERT INTO ApplicationCourse (applicationID, courseID, status, hoursAllocated) VALUES (?,?,?,?)';
-      const params = [data.applicationID, value, '0', '0'];
-      db.run(sql, params);
-    });
-  });*/
+    db.get(getCourseID, [course]).then(
+      (value: CourseID) => {
+        const query =
+          'INSERT INTO ApplicationCourse (applicationID, courseID, status, hoursAllocated) VALUES (?,?,?,?)';
+        const param = [data.applicationID, value.courseID, '0', '0'];
+        db.run(query, param).then(
+          () => {
+            responseOk(res, data);
+          },
+          (reason: Error) => {
+            badRequest(res, reason.message + '----');
+          }
+        );
+      },
+      (reason: Error) => {
+        badRequest(res, reason.message);
+      }
+    );
+  });
 });
 
 // POST Insert a course
