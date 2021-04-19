@@ -1,68 +1,67 @@
-import * as sqlite from 'sqlite3';
+import * as sqlite3 from 'sqlite3';
 import DBDataUtil from './DBDataUtil';
 import { RequestBody } from '../utils/RequestBody';
 
-const sqlite3 = sqlite.verbose();
+sqlite3.verbose();
 const DBSOURCE = 'db.sqlite';
 
 type Id = { id: number };
 
-class Database {
-  private _db: sqlite.Database;
+export default class Database {
+  private db: sqlite3.Database;
 
   constructor() {
-    this._db = new sqlite3.Database(DBSOURCE, (err) => {
+    this.db = new sqlite3.Database(DBSOURCE, (err) => {
       if (err) {
         // Cannot open database
         console.error(err.message);
         throw err;
       } else {
-        DBDataUtil(this._db);
+        DBDataUtil.initialize(this.db);
+        this.db.close();
       }
     });
   }
 
   run(sql: string, params: string[] = []): Promise<Id> {
     return new Promise<Id>((resolve, reject) => {
-      this._db = new sqlite3.Database(DBSOURCE);
-      this._db.run(sql, params, function (err) {
+      this.db = new sqlite3.Database(DBSOURCE);
+      this.db.run(sql, params, function (err) {
         if (err) {
           reject(err);
         } else {
           resolve({ id: this.lastID });
         }
       });
-      this._db.close();
+      this.db.close();
     });
   }
 
   get(sql: string, params: string[] = []): Promise<any> {
     return new Promise((resolve, reject) => {
-      this._db = new sqlite3.Database(DBSOURCE);
-      this._db.get(sql, params, (err, result) => {
+      this.db = new sqlite3.Database(DBSOURCE);
+      this.db.get(sql, params, (err, result) => {
         if (err) {
           reject(err);
         } else {
           resolve(result);
         }
       });
-      this._db.close();
+      this.db.close();
     });
   }
 
   all(sql: string, params: string[] = []): Promise<RequestBody> {
     return new Promise((resolve, reject) => {
-      this._db = new sqlite3.Database(DBSOURCE);
-      this._db.all(sql, params, (err, rows: RequestBody) => {
+      this.db = new sqlite3.Database(DBSOURCE);
+      this.db.all(sql, params, (err, rows: RequestBody) => {
         if (err) {
           reject(err);
         } else {
           resolve(rows);
         }
       });
-      this._db.close();
+      this.db.close();
     });
   }
 }
-
-export default Database;
