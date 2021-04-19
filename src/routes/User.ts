@@ -179,21 +179,21 @@ router.post('/application/', (req: Request, res: Response) => {
     }
   );
 
-  const appliedCourseList = data.appliedCourses.split(",");
+  // Below section is new
 
-  appliedCourseList.forEach(function(course) {
+  /*const appliedCourseList = data.appliedCourses.split(',');
 
+  appliedCourseList.forEach(function (course) {
     const getCourseID = 'SELECT courseID FROM Course WHERE courseName = ?';
 
-    db.get(getCourseID, [course]).then(function(value) {  
-      const sql = 'INSERT INTO ApplicationCourse (applicationID, courseID, status, hoursAllocated) VALUES (?,?,?,?)';
+    db.get(getCourseID, [course]).then(function (value) {
+      const sql =
+        'INSERT INTO ApplicationCourse (applicationID, courseID, status, hoursAllocated) VALUES (?,?,?,?)';
       const params = [data.applicationID, value, '0', '0'];
       db.run(sql, params);
-    })  
-  })
-
+    });
+  });*/
 });
-
 
 // POST Insert a course
 router.post('/course/', (req: Request, res: Response) => {

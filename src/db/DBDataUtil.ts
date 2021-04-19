@@ -149,7 +149,7 @@ export default class DBDataUtil {
         markerID: [3],
         year: [2021],
         whichSemestersField: [0b010],
-        appliedCourses: ["COMPSCI 399, COMPSCI 101, COMPSCI 120"],
+        appliedCourses: ['COMPSCI 399, COMPSCI 101, COMPSCI 120'],
         curriculumVitae: [Buffer.from('%PDF-1.7\r\n')],
         academicRecord: [Buffer.from('%PDF-1.7\r\n')],
         hoursRequested: [50],
