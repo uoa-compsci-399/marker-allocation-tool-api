@@ -52,7 +52,7 @@ router.get('/courses', (req: Request, res: Response) => {
 });
 
 // Get a list of available/open courses
-router.get('/availableCourses', (req: Request, res: Response) => {
+router.get('/courses/available', (req: Request, res: Response) => {
   const sql = "SELECT * FROM Course WHERE DATE('now') <= DATE(applicationDeadline)";
   const params: string[] = [];
 
@@ -138,6 +138,9 @@ router.post('/application/', (req: Request, res: Response) => {
   if (!data.whichSemestersField) {
     errors.push('No whichSemestersField specified');
   }
+  if (!data.appliedCourses) {
+    errors.push('No appliedCourses specified');
+  }
   if (!data.curriculumVitae) {
     errors.push('No curriculumVitae specified');
   }
@@ -154,12 +157,13 @@ router.post('/application/', (req: Request, res: Response) => {
   }
 
   const sql =
-    'INSERT INTO Application (applicationID, markerID, year, whichSemestersField, curriculumVitae, academicRecord, hoursRequested, relevantExperience) VALUES (?,?,?,?,?,?,?,?)';
+    'INSERT INTO Application (applicationID, markerID, year, whichSemestersField, appliedCourses, curriculumVitae, academicRecord, hoursRequested, relevantExperience) VALUES (?,?,?,?,?,?,?,?,?)';
   const params = [
     data.applicationID,
     data.markerID,
     data.year,
     data.whichSemestersField,
+    data.appliedCourses,
     data.curriculumVitae,
     data.academicRecord,
     data.hoursRequested,
@@ -174,7 +178,22 @@ router.post('/application/', (req: Request, res: Response) => {
       badRequest(res, reason.message);
     }
   );
+
+  const appliedCourseList = data.appliedCourses.split(",");
+
+  appliedCourseList.forEach(function(course) {
+
+    const getCourseID = 'SELECT courseID FROM Course WHERE courseName = ?';
+
+    db.get(getCourseID, [course]).then(function(value) {  
+      const sql = 'INSERT INTO ApplicationCourse (applicationID, courseID, status, hoursAllocated) VALUES (?,?,?,?)';
+      const params = [data.applicationID, value, '0', '0'];
+      db.run(sql, params);
+    })  
+  })
+
 });
+
 
 // POST Insert a course
 router.post('/course/', (req: Request, res: Response) => {

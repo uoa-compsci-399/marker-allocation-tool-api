@@ -15,6 +15,7 @@ export interface ApplicationRequest extends RequestBody {
   markerID: string;
   year: string;
   whichSemestersField: string;
+  appliedCourses: string;
   curriculumVitae: string;
   academicRecord: string;
   hoursRequested: string;

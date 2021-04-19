@@ -21,10 +21,11 @@ export default class DBDataUtil {
       ]);
 
       SQLiteUtil.createTable(db, 'Application', [
-        '"applicationID"	INTEGER PRIMARY KEY',
+        '"applicationID"	INTEGER PRIMARY KEY AUTOINCREMENT',
         '"markerID"	INTEGER NOT NULL REFERENCES "Marker"("userID")',
         '"year"	INTEGER NOT NULL',
         '"whichSemestersField"	INTEGER NOT NULL',
+        '"appliedCourses"	TEXT NOT NULL',
         '"curriculumVitae"	BLOB NOT NULL',
         '"academicRecord"	BLOB NOT NULL',
         '"hoursRequested"	INTEGER NOT NULL',
@@ -32,12 +33,12 @@ export default class DBDataUtil {
       ]);
 
       SQLiteUtil.createTable(db, 'ApplicationCourse', [
-        '"applicationCourseID"	INTEGER PRIMARY KEY',
+        '"applicationCourseID"	INTEGER PRIMARY KEY AUTOINCREMENT',
         '"applicationID"	INTEGER NOT NULL REFERENCES "Application"("applicationID")',
         '"courseID"	INTEGER NOT NULL REFERENCES "Course"("courseID")',
         '"status"	INTEGER NOT NULL',
         '"hoursAllocated"	INTEGER',
-        '"claimGradeAchieved"	TEXT',
+        // '"claimGradeAchieved"	TEXT',
       ]);
 
       SQLiteUtil.createTable(db, 'User', [
@@ -148,6 +149,7 @@ export default class DBDataUtil {
         markerID: [3],
         year: [2021],
         whichSemestersField: [0b010],
+        appliedCourses: ["COMPSCI 399, COMPSCI 101, COMPSCI 120"],
         curriculumVitae: [Buffer.from('%PDF-1.7\r\n')],
         academicRecord: [Buffer.from('%PDF-1.7\r\n')],
         hoursRequested: [50],
@@ -160,7 +162,7 @@ export default class DBDataUtil {
         courseID: [2],
         status: [0],
         hoursAllocated: [0],
-        claimGradeAchieved: ['A+'],
+        // claimGradeAchieved: ['A+'],
       });
     });
   }
