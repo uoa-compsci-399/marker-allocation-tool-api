@@ -133,7 +133,7 @@ export default class DBDataUtil {
       // Create course data
       SQLiteUtil.insertMultipleIntoTableAsArrayObject(db, true, 'Course', {
         courseID: [1, 2, 3],
-        courseName: ['COMPSCI 399', 'COMPSCI 101', 'COMPSCI 101'],
+        courseName: ['COMPSCI 399', 'COMPSCI 101', 'COMPSCI 130'],
         year: [2021, 2021, 2021],
         whichSemestersField: [0b010, 0b010, 0b100],
         isPublished: [1, 1, 1],
@@ -141,7 +141,7 @@ export default class DBDataUtil {
         enrolmentFinal: [100, 500, 0],
         workload: [50, 80, 80],
         courseInfoDeadline: ['2021-01-01', '2021-01-01', '2021-03-01'],
-        applicationDeadline: ['2021-01-01', '2021-01-01', '2021-07-01'],
+        applicationDeadline: ['2021-01-01', '2022-01-01', '2021-07-01'],
         markerPrefDeadline: ['2021-01-01', '2021-01-01', '2021-07-10'],
         markerAssignmentDeadline: ['2021-01-01', '2021-01-01', '2021-07-20'],
         otherTasks: ['Give good grades!', '', ''],

@@ -1,5 +1,7 @@
 export interface RequestBody {
   id: string;
+
+  forEach(param: (value: any) => void): void;
 }
 
 export interface UserRequest extends RequestBody {
@@ -61,6 +63,10 @@ export interface CourseRequest extends RequestBody {
 
 export interface CourseID {
   courseID: string;
+}
+
+export interface ActiveCourse {
+  courseName: string;
 }
 
 export interface Marker {
