@@ -154,7 +154,7 @@ router.post('/application/', (req: Request, res: Response) => {
   ];
 
   for (const field of requestDataFields) {
-    if (!requestData[field as keyof ApplicationRequestPreAuth]) {
+    if (requestData[field as keyof ApplicationRequestPreAuth] == null) {
       errors.push(`No ${field} specified`);
     }
   }
