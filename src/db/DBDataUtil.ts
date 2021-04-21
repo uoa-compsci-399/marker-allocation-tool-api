@@ -24,11 +24,16 @@ export default class DBDataUtil {
         '"applicationID"	INTEGER PRIMARY KEY',
         '"markerID"	INTEGER NOT NULL REFERENCES "Marker"("userID")',
         '"year"	INTEGER NOT NULL',
-        '"whichSemestersField"	INTEGER NOT NULL',
+        '"availability"	INTEGER NOT NULL',
         '"curriculumVitae"	BLOB NOT NULL',
         '"academicRecord"	BLOB NOT NULL',
-        '"hoursRequested"	INTEGER NOT NULL',
-        '"relevantExperience"	TEXT',
+        //'"hoursRequested"	INTEGER NOT NULL',
+        //'"relevantExperience"	TEXT',
+        '"areaOfStudy"	TEXT NOT NULL',
+        '"enrolmentStatus"	TEXT NOT NULL',
+        '"workEligible"	INTEGER NOT NULL',
+        '"inAuckland"	INTEGER NOT NULL',
+        '"declaration"	INTEGER NOT NULL',
       ]);
 
       SQLiteUtil.createTable(db, 'ApplicationCourse', [
@@ -37,7 +42,7 @@ export default class DBDataUtil {
         '"courseID"	INTEGER NOT NULL REFERENCES "Course"("courseID")',
         '"status"	INTEGER NOT NULL',
         '"hoursAllocated"	INTEGER',
-        '"claimGradeAchieved"	TEXT',
+        // '"claimGradeAchieved"	TEXT',
       ]);
 
       SQLiteUtil.createTable(db, 'User', [
@@ -68,14 +73,14 @@ export default class DBDataUtil {
       SQLiteUtil.createTable(db, 'Marker', [
         '"userID"	INTEGER PRIMARY KEY REFERENCES "User"("userID")',
         //'"markerAccess"	TEXT NOT NULL',
-        '"upi" TEXT NOT NULL',
+        //'"upi" TEXT NOT NULL',
         '"studentID" TEXT NOT NULL',
         '"dateOfBirth"	TEXT NOT NULL',
-        '"phoneNumber"	TEXT',
-        '"isScholarshipRecipient"	INTEGER NOT NULL',
-        '"isNZCitizenOrPermanentResident"	INTEGER NOT NULL',
-        '"hasWorkVisa"	INTEGER NOT NULL',
-        '"isInAuckland"	INTEGER NOT NULL',
+        //'"phoneNumber"	TEXT',
+        //'"isScholarshipRecipient"	INTEGER NOT NULL',
+        //'"isNZCitizenOrPermanentResident"	INTEGER NOT NULL',
+        //'"hasWorkVisa"	INTEGER NOT NULL',
+        //'"isInAuckland"	INTEGER NOT NULL',
         '"lastApplicationID"	INTEGER REFERENCES "Application"("applicationID")',
       ]);
     });
@@ -97,15 +102,15 @@ export default class DBDataUtil {
       // Create marker data
       SQLiteUtil.insertMultipleIntoTableAsArrayObject(db, true, 'Marker', {
         userID: [3, 4, 5],
-        upi: ['sten187', 'cche795', 'jpar914'],
+        //upi: ['sten187', 'cche795', 'jpar914'],
         studentID: ['883789472', '809097908', '5615303'],
         dateOfBirth: ['2000-01-01', '2000-02-02', '2000-03-03'],
-        phoneNumber: ['0800 83 83 83', '022987456', null],
-        isScholarshipRecipient: [0, 0, 1],
-        isNZCitizenOrPermanentResident: [1, 0, 0],
-        hasWorkVisa: [0, 0, 1],
-        isInAuckland: [1, 1, 1],
-        lastApplicationID: [null, null, null],
+        //phoneNumber: ['0800 83 83 83', '022987456', null],
+        //isScholarshipRecipient: [0, 0, 1],
+        //isNZCitizenOrPermanentResident: [1, 0, 0],
+        //hasWorkVisa: [0, 0, 1],
+        //isInAuckland: [1, 1, 1],
+        //lastApplicationID: [null, null, null],
       });
 
       // Create marker coordinator data
@@ -127,19 +132,19 @@ export default class DBDataUtil {
 
       // Create course data
       SQLiteUtil.insertMultipleIntoTableAsArrayObject(db, true, 'Course', {
-        courseID: [1, 2],
-        courseName: ['COMPSCI 399', 'COMPSCI 101'],
-        year: [2021, 2021],
-        whichSemestersField: [0b010, 0b010],
-        isPublished: [1, 1],
-        enrolmentEstimate: [50, 300],
-        enrolmentFinal: [100, 500],
-        workload: [50, 80],
-        courseInfoDeadline: ['2021-01-01', ''],
-        applicationDeadline: ['2021-01-01', ''],
-        markerPrefDeadline: ['2021-01-01', ''],
-        markerAssignmentDeadline: ['2021-01-01', ''],
-        otherTasks: ['Give good grades!', ''],
+        courseID: [1, 2, 3],
+        courseName: ['COMPSCI 399', 'COMPSCI 101', 'COMPSCI 130'],
+        year: [2021, 2021, 2021],
+        whichSemestersField: [0b010, 0b010, 0b100],
+        isPublished: [1, 1, 1],
+        enrolmentEstimate: [50, 300, 300],
+        enrolmentFinal: [100, 500, 0],
+        workload: [50, 80, 80],
+        courseInfoDeadline: ['2021-01-01', '2021-01-01', '2021-03-01'],
+        applicationDeadline: ['2021-01-01', '2022-01-01', '2021-07-01'],
+        markerPrefDeadline: ['2021-01-01', '2021-01-01', '2021-07-10'],
+        markerAssignmentDeadline: ['2021-01-01', '2021-01-01', '2021-07-20'],
+        otherTasks: ['Give good grades!', '', ''],
       });
 
       // Create application data
@@ -147,11 +152,16 @@ export default class DBDataUtil {
         applicationID: [1],
         markerID: [3],
         year: [2021],
-        whichSemestersField: [0b010],
+        availability: [0b010],
         curriculumVitae: [Buffer.from('%PDF-1.7\r\n')],
         academicRecord: [Buffer.from('%PDF-1.7\r\n')],
-        hoursRequested: [50],
-        relevantExperience: ["I've taught stuff"],
+        //hoursRequested: [50],
+        //relevantExperience: ["I've taught stuff"],
+        areaOfStudy: ['Science'],
+        enrolmentStatus: ['enrolled'],
+        workEligible: [1],
+        inAuckland: [1],
+        declaration: [1],
       });
 
       SQLiteUtil.insertMultipleIntoTableAsArrayObject(db, true, 'ApplicationCourse', {
@@ -160,7 +170,7 @@ export default class DBDataUtil {
         courseID: [2],
         status: [0],
         hoursAllocated: [0],
-        claimGradeAchieved: ['A+'],
+        // claimGradeAchieved: ['A+'],
       });
     });
   }

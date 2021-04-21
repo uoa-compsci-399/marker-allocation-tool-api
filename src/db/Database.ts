@@ -23,7 +23,7 @@ export default class Database {
     });
   }
 
-  run(sql: string, params: string[] = []): Promise<Id> {
+  run(sql: string, params: any[] = []): Promise<Id> {
     return new Promise<Id>((resolve, reject) => {
       this.db = new sqlite3.Database(DBSOURCE);
       this.db.run(sql, params, function (err) {
@@ -37,7 +37,7 @@ export default class Database {
     });
   }
 
-  get(sql: string, params: string[] = []): Promise<any> {
+  get(sql: string, params: any[] = []): Promise<any> {
     return new Promise((resolve, reject) => {
       this.db = new sqlite3.Database(DBSOURCE);
       this.db.get(sql, params, (err, result) => {
@@ -51,7 +51,7 @@ export default class Database {
     });
   }
 
-  all(sql: string, params: string[] = []): Promise<RequestBody> {
+  all(sql: string, params: any[] = []): Promise<RequestBody> {
     return new Promise((resolve, reject) => {
       this.db = new sqlite3.Database(DBSOURCE);
       this.db.all(sql, params, (err, rows: RequestBody) => {
