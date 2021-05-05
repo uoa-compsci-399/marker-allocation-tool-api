@@ -1,11 +1,12 @@
 import express, { Application, Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import userRoute from './routes/User';
+import authnRoute from './routes/authn/Authn';
 import cors from 'cors';
 
 const app: Application = express();
 
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: false }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(cors());
 
@@ -15,6 +16,8 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.use('/api/', userRoute);
+
+app.use('/api/authn/', authnRoute);
 
 // Insert here other API endpoints
 
