@@ -50,7 +50,15 @@ export default class DBDataUtil {
         '"firstName"	TEXT NOT NULL',
         '"lastName"	TEXT NOT NULL',
         '"email"	TEXT NOT NULL',
+        '"upi"	TEXT NOT NULL',
         '"role"	TEXT NOT NULL',
+      ]);
+
+      SQLiteUtil.createTable(db, 'UserToken', [
+        '"userTokenID"	INTEGER PRIMARY KEY',
+        '"userID"	INTEGER NOT NULL REFERENCES "User"("userID")',
+        '"createdAt"	TEXT NOT NULL',
+        '"value"	TEXT NOT NULL',
       ]);
 
       SQLiteUtil.createTable(db, 'MarkerCoordinator', [
@@ -96,6 +104,7 @@ export default class DBDataUtil {
         email: ['burkhard', 'asma', 'songyan', 'darren', 'jim'].map(
           (fn) => `${fn}@aucklanduni.ac.nz`
         ),
+        upi: ['bwen001', 'asha001', 'sten001', 'cche001', 'jpar001'],
         role: ['MarkerCoordinator', 'CourseCoordinator', 'Marker', 'Marker', 'Marker'],
       });
 
