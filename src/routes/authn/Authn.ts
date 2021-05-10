@@ -148,7 +148,7 @@ router.post('/assert', (req: Request, res: Response) => {
       const forwardTo = requests[request_id].forwardTo || '/';
       delete requests[request_id];
 
-      res.cookie('authn_token', tokenValue, { httpOnly: true, secure: true });
+      res.cookie('authn_token', tokenValue, { httpOnly: true, secure: true, sameSite: 'lax' });
       res.redirect(forwardTo);
     }
   );
