@@ -1,7 +1,7 @@
 import express, { Application, Request, Response } from 'express';
 import bodyParser from 'body-parser';
-import userRoute from './routes/User';
-import authnRoute from './routes/authn/Authn';
+import routes_user from './routes/User';
+import routes_auth from './routes/authn/Authn';
 import cors from 'cors';
 
 const app: Application = express();
@@ -15,9 +15,9 @@ app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'Ok' });
 });
 
-app.use('/api/', userRoute);
+app.use('/api/', routes_user);
 
-app.use('/api/authn/', authnRoute);
+app.use('/api/authn/', routes_auth);
 
 // Insert here other API endpoints
 
