@@ -149,27 +149,27 @@ export default class DBDataUtil {
 
       // Create application data
       SQLiteUtil.insertMultipleIntoTableAsArrayObject(db, true, 'Application', {
-        applicationID: [1],
-        markerID: [3],
-        year: [2021],
-        availability: [0b010],
-        curriculumVitae: [Buffer.from('%PDF-1.7\r\n')],
-        academicRecord: [Buffer.from('%PDF-1.7\r\n')],
+        applicationID: [1, 2],
+        markerID: [3, 4],
+        year: [2021, 2022],
+        availability: [0b010, 0b010],
+        curriculumVitae: [Buffer.from('%PDF-1.7\r\n'), Buffer.from('%PDF-1.7\r\n')],
+        academicRecord: [Buffer.from('%PDF-1.7\r\n'), Buffer.from('%PDF-1.7\r\n')],
         //hoursRequested: [50],
         //relevantExperience: ["I've taught stuff"],
-        areaOfStudy: ['Science'],
-        enrolmentStatus: ['enrolled'],
-        workEligible: [1],
-        inAuckland: [1],
-        declaration: [1],
+        areaOfStudy: ['Science', 'Science'],
+        enrolmentStatus: ['enrolled', 'enrolled'],
+        workEligible: [1, 1],
+        inAuckland: [1, 1],
+        declaration: [1, 1],
       });
 
       SQLiteUtil.insertMultipleIntoTableAsArrayObject(db, true, 'ApplicationCourse', {
-        applicationCourseID: [1],
-        applicationID: [1],
-        courseID: [2],
-        status: [0],
-        hoursAllocated: [0],
+        applicationCourseID: [1, 2, 3, 4],
+        applicationID: [1, 1, 2, 2],
+        courseID: [1, 2, 1, 2],
+        status: [0, 0, 0, 0],
+        hoursAllocated: [0, 0, 0, 0],
         // claimGradeAchieved: ['A+'],
       });
     });
