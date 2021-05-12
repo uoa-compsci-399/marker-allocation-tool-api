@@ -13,6 +13,7 @@ export default class DBDataUtil {
         '"enrolmentEstimate"	INTEGER NOT NULL',
         '"enrolmentFinal"	INTEGER NOT NULL',
         '"workload"	INTEGER NOT NULL',
+        '"preferredMarkers"	INTEGER NOT NULL',
         '"courseInfoDeadline"	TEXT',
         '"applicationDeadline"	TEXT',
         '"markerPrefDeadline"	TEXT',
@@ -50,6 +51,7 @@ export default class DBDataUtil {
         '"firstName"	TEXT NOT NULL',
         '"lastName"	TEXT NOT NULL',
         '"email"	TEXT NOT NULL',
+        '"upi"	TEXT NOT NULL',
         '"role"	TEXT NOT NULL',
       ]);
 
@@ -96,6 +98,7 @@ export default class DBDataUtil {
         email: ['burkhard', 'asma', 'songyan', 'darren', 'jim'].map(
           (fn) => `${fn}@aucklanduni.ac.nz`
         ),
+        upi: ['bwen001', 'asha001', 'sten001', 'cche001', 'jpar001'],
         role: ['MarkerCoordinator', 'CourseCoordinator', 'Marker', 'Marker', 'Marker'],
       });
 
@@ -140,6 +143,7 @@ export default class DBDataUtil {
         enrolmentEstimate: [50, 300, 300],
         enrolmentFinal: [100, 500, 0],
         workload: [50, 80, 80],
+        preferredMarkers: [2, 10, 8],
         courseInfoDeadline: ['2021-01-01', '2021-01-01', '2021-03-01'],
         applicationDeadline: ['2021-01-01', '2022-01-01', '2021-07-01'],
         markerPrefDeadline: ['2021-01-01', '2021-01-01', '2021-07-10'],
@@ -168,7 +172,7 @@ export default class DBDataUtil {
         applicationCourseID: [1, 2, 3, 4],
         applicationID: [1, 1, 2, 2],
         courseID: [1, 2, 1, 2],
-        status: [0, 0, 0, 0],
+        status: [0, 0, 0, 1],
         hoursAllocated: [0, 0, 0, 0],
         // claimGradeAchieved: ['A+'],
       });

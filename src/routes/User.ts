@@ -118,6 +118,9 @@ router.post('/user/', (req: Request, res: Response) => {
   if (!data.email) {
     errors.push('No email specified');
   }
+  if (!data.upi) {
+    errors.push('No upi specified');
+  }
   if (!data.role) {
     errors.push('No role specified');
   }
@@ -126,8 +129,8 @@ router.post('/user/', (req: Request, res: Response) => {
     return;
   }
 
-  const sql = 'INSERT INTO User (userID, firstName, lastName, email, role) VALUES (?,?,?,?,?)';
-  const params = [data.userID, data.firstName, data.lastName, data.email, data.role];
+  const sql = 'INSERT INTO User (userID, firstName, lastName, email, upi, role) VALUES (?,?,?,?,?,?)';
+  const params = [data.userID, data.firstName, data.lastName, data.email, data.upi, data.role];
 
   db.run(sql, params).then(
     () => {
@@ -213,6 +216,9 @@ router.post('/course/', (req: Request, res: Response) => {
   if (!data.workload) {
     errors.push('No workload specified');
   }
+  if (!data.preferredMarkers) {
+    errors.push('No preferredMarkers specified');
+  }
 
   if (errors.length) {
     res.status(400).json({ error: errors.join(',') });
@@ -221,7 +227,7 @@ router.post('/course/', (req: Request, res: Response) => {
 
   const sql =
     'INSERT INTO Course (courseID, courseName, year, whichSemestersField, isPublished, ' +
-    'enrolmentEstimate, enrolmentFinal, workload, courseInfoDeadline, applicationDeadline, ' +
+    'enrolmentEstimate, enrolmentFinal, workload, preferredMarkers, courseInfoDeadline, applicationDeadline, ' +
     'markerPrefDeadline, markerAssignmentDeadline, otherTasks) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
   const params = [
     data.courseID,
@@ -232,6 +238,7 @@ router.post('/course/', (req: Request, res: Response) => {
     data.enrolmentEstimate,
     data.enrolmentFinal,
     data.workload,
+    data.preferredMarkers,
     data.courseInfoDeadline ? data.courseInfoDeadline : '',
     data.applicationDeadline ? data.applicationDeadline : '',
     data.markerPrefDeadline ? data.markerPrefDeadline : '',

@@ -9,6 +9,7 @@ export interface UserRequest extends RequestBody {
   firstName: string;
   lastName: string;
   email: string;
+  upi: string;
   role: string;
 }
 
@@ -54,6 +55,7 @@ export interface CourseRequest extends RequestBody {
   enrolmentEstimate: string;
   enrolmentFinal: string;
   workload: string;
+  preferredMarkers: string;
   courseInfoDeadline: string;
   applicationDeadline: string;
   markerPrefDeadline: string;
