@@ -156,8 +156,7 @@ router.post('/course/', (req: Request, res: Response) => {
 });
 
 const handleCourseInsert = async (data: CourseRequest) => {
-  const sql =
-    `INSERT INTO Course (courseID, courseName, enrolmentEstimate, enrolmentFinal, expectedWorkload,
+  const sql = `INSERT INTO Course (courseID, courseName, enrolmentEstimate, enrolmentFinal, expectedWorkload,
     preferredMarkerCount, semesters, year, applicationClosingDate, courseInfoDeadline, markerAssignmentDeadline, 
     markerPrefDeadline, isPublished, otherNotes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
@@ -170,9 +169,9 @@ const handleCourseInsert = async (data: CourseRequest) => {
     data.preferredMarkerCount,
     data.semesters,
     data.year,
-    data.applicationClosingDate? data.applicationClosingDate : '',
+    data.applicationClosingDate ? data.applicationClosingDate : '',
     data.courseInfoDeadline ? data.courseInfoDeadline : '',
-    data.markerAssignmentDeadline ? data.markerAssignmentDeadline : '', 
+    data.markerAssignmentDeadline ? data.markerAssignmentDeadline : '',
     data.markerPrefDeadline ? data.markerPrefDeadline : '',
     data.isPublished,
     data.otherNotes ? data.otherNotes : '',
@@ -180,17 +179,16 @@ const handleCourseInsert = async (data: CourseRequest) => {
 
   await db.run(sql, params);
 
-  for (const coordinator of data.courseCoordinators) {
+  for (const coordinator of data.courseCoordinators.split(",")) {
     const getUserID = 'SELECT userID FROM User WHERE upi = ?';
 
     const userID: string = await db
-      .get(getUserID, [coordinator.split(" - ")[1]])
+      .get(getUserID, [coordinator.trim().split(' - ')[1]])
       .then((value: UserID) => value.userID);
 
     const query =
-      'INSERT INTO CourseCoordinatorCourse (courseCoordinatorID, courseID, permissions) VALUES ' +
-      '(?,?,?)';
-    const param = [userID, data.courseID, ''];
+      `INSERT INTO CourseCoordinatorCourse (courseCoordinatorID, courseID, permissions) VALUES (?,?,?)`;
+    const param = [userID, data.courseID, 0b111];
 
     await db.run(query, param);
   }

@@ -5,11 +5,9 @@ import {
   RequestBody,
   UserRequest,
   ApplicationRequest,
-  CourseRequest,
   CourseID,
   ApplicationRequestPreAuth,
   Marker,
-  ActiveCourse,
 } from '../utils/RequestBody';
 
 //TODO: Split this file into individual route files
@@ -67,7 +65,7 @@ router.get('/courses', (req: Request, res: Response) => {
                FROM Course c, CourseCoordinatorCourse ccc, User u
                WHERE c.courseID = ccc.courseID
                AND ccc.courseCoordinatorID = u.userID
-               GROUP BY c.courseID`
+               GROUP BY c.courseID`;
 
   const params: string[] = [];
 
@@ -83,16 +81,9 @@ router.get('/courses', (req: Request, res: Response) => {
 
 // Get a list of available/open courses
 router.get('/courses/available', (req: Request, res: Response) => {
-  const sql = `SELECT c.courseID, c.courseName, c.enrolmentEstimate, c.enrolmentFinal, 
-               c.expectedWorkload, c.preferredMarkerCount, 
-               GROUP_CONCAT(u.firstName || ' ' || u.lastName || ' - ' || u.upi, ", ") AS [courseCoordinators], 
-               c.semesters, c.year, c.applicationClosingDate, c.courseInfoDeadline, c.markerAssignmentDeadline, 
-               c.markerPrefDeadline, c.isPublished, c.otherNotes 
-               FROM Course c, CourseCoordinatorCourse ccc, User u
-               WHERE c.courseID = ccc.courseID
-               AND ccc.courseCoordinatorID = u.userID
-               AND DATE('now') <= DATE(c.applicationClosingDate)
-               GROUP BY c.courseID`
+  const sql = `SELECT c.courseID
+               FROM Course c
+               WHERE DATE('now') <= DATE(c.applicationClosingDate)`;
 
   const params: string[] = [];
 
@@ -120,14 +111,15 @@ router.get('/application/:applicationID', (req: Request, res: Response) => {
 router.get('/course/:courseID', (req: Request, res: Response) => {
   const sql = `SELECT c.courseID, c.courseName, c.enrolmentEstimate, c.enrolmentFinal, 
                c.expectedWorkload, c.preferredMarkerCount, 
-               GROUP_CONCAT(u.firstName || ' ' || u.lastName || ' - ' || u.upi, ", ") AS [courseCoordinators], 
+               GROUP_CONCAT(u.firstName || ' ' || u.lastName, ", ") AS [courseCoordinatorsName],
+               GROUP_CONCAT(u.upi, ", ") AS [courseCoordinatorsUPI],  
                c.semesters, c.year, c.applicationClosingDate, c.courseInfoDeadline, c.markerAssignmentDeadline, 
                c.markerPrefDeadline, c.isPublished, c.otherNotes 
                FROM Course c, CourseCoordinatorCourse ccc, User u
                WHERE c.courseID = ccc.courseID
                AND ccc.courseCoordinatorID = u.userID
                AND c.courseID = ?
-               GROUP BY c.courseID`
+               GROUP BY c.courseID`;
 
   const params = [req.params.courseID];
 
@@ -229,8 +221,7 @@ router.post('/application/', (req: Request, res: Response) => {
 });
 
 const handleApplicationInsert = async (data: ApplicationRequest) => {
-  const sql =
-    `INSERT INTO Application (applicationID, markerID, year, whichSemestersField,
+  const sql = `INSERT INTO Application (applicationID, markerID, year, whichSemestersField,
     curriculumVitae, academicRecord, hoursRequested, relevantExperience) VALUES
     (?,?,?,?,?,?,?,?,?)`;
   const params = [

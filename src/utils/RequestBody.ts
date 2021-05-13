@@ -50,10 +50,10 @@ export interface CourseRequest extends RequestBody {
   courseID: string;
   courseName: string;
   enrolmentEstimate: string;
-  enrolmentFinal: string; 
+  enrolmentFinal: string;
   expectedWorkload: string;
   preferredMarkerCount: string;
-  courseCoordinators: string[];
+  courseCoordinators: string;
   semesters: string;
   year: string;
   applicationClosingDate: string;
