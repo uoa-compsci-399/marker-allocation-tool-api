@@ -129,7 +129,8 @@ router.post('/user/', (req: Request, res: Response) => {
     return;
   }
 
-  const sql = 'INSERT INTO User (userID, firstName, lastName, email, upi, role) VALUES (?,?,?,?,?,?)';
+  const sql =
+    'INSERT INTO User (userID, firstName, lastName, email, upi, role) VALUES (?,?,?,?,?,?)';
   const params = [data.userID, data.firstName, data.lastName, data.email, data.upi, data.role];
 
   db.run(sql, params).then(

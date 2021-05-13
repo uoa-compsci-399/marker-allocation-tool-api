@@ -71,6 +71,10 @@ export interface ActiveCourse {
   courseName: string;
 }
 
+export interface CourseCoordinatorFull {
+  courseCoordinator: string;
+}
+
 export interface Marker {
   userID: number;
 }

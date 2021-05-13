@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 
 import db from '../db/DBController';
-import { RequestBody } from '../utils/RequestBody';
+import { CourseCoordinatorFull, RequestBody } from '../utils/RequestBody';
 
 const router = express.Router();
 
@@ -86,14 +86,22 @@ router.get('/course/:courseID/application/open', (req: Request, res: Response) =
 
 // Get a list of course coordinators
 router.get('/coursecoordinators', (req: Request, res: Response) => {
-  const sql = `SELECT firstName || ' ' || lastName AS [name], upi
+  const sql = `SELECT firstName || ' ' || lastName  || ' - ' || upi AS [courseCoordinator]
                FROM User
                WHERE role = 'CourseCoordinator'`;
   const params: string[] = [];
 
   db.all(sql, params).then(
     (value) => {
-      responseOk(res, value);
+      const data: string[] = [];
+      value.forEach((courseCoordinatorFull: CourseCoordinatorFull) => {
+        data.push(courseCoordinatorFull.courseCoordinator);
+      });
+
+      res.json({
+        message: 'success',
+        data: data,
+      });
     },
     (reason: Error) => {
       badRequest(res, reason.message);
