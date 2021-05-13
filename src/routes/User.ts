@@ -59,25 +59,46 @@ router.get('/applications', (req: Request, res: Response) => {
 
 // Get a list of courses
 router.get('/courses', (req: Request, res: Response) => {
-  getAllData(req, res, 'Course');
-});
+  const sql = `SELECT c.courseID, c.courseName, c.enrolmentEstimate, c.enrolmentFinal, 
+               c.expectedWorkload, c.preferredMarkerCount, 
+               GROUP_CONCAT(u.firstName || ' ' || u.lastName || ' - ' || u.upi, ", ") AS [courseCoordinators], 
+               c.semesters, c.year, c.applicationClosingDate, c.courseInfoDeadline, c.markerAssignmentDeadline, 
+               c.markerPrefDeadline, c.isPublished, c.otherNotes 
+               FROM Course c, CourseCoordinatorCourse ccc, User u
+               WHERE c.courseID = ccc.courseID
+               AND ccc.courseCoordinatorID = u.userID
+               GROUP BY c.courseID`
 
-// Get a list of available/open courses
-router.get('/courses/available', (req: Request, res: Response) => {
-  const sql = "SELECT courseName FROM Course WHERE DATE('now') <= DATE(applicationDeadline)";
   const params: string[] = [];
 
   db.all(sql, params).then(
     (value) => {
-      const data: string[] = [];
-      value.forEach((activeCourse: ActiveCourse) => {
-        data.push(activeCourse.courseName);
-      });
+      responseOk(res, value);
+    },
+    (reason: Error) => {
+      badRequest(res, reason.message);
+    }
+  );
+});
 
-      res.json({
-        message: 'success',
-        data: data,
-      });
+// Get a list of available/open courses
+router.get('/courses/available', (req: Request, res: Response) => {
+  const sql = `SELECT c.courseID, c.courseName, c.enrolmentEstimate, c.enrolmentFinal, 
+               c.expectedWorkload, c.preferredMarkerCount, 
+               GROUP_CONCAT(u.firstName || ' ' || u.lastName || ' - ' || u.upi, ", ") AS [courseCoordinators], 
+               c.semesters, c.year, c.applicationClosingDate, c.courseInfoDeadline, c.markerAssignmentDeadline, 
+               c.markerPrefDeadline, c.isPublished, c.otherNotes 
+               FROM Course c, CourseCoordinatorCourse ccc, User u
+               WHERE c.courseID = ccc.courseID
+               AND ccc.courseCoordinatorID = u.userID
+               AND DATE('now') <= DATE(c.applicationClosingDate)
+               GROUP BY c.courseID`
+
+  const params: string[] = [];
+
+  db.all(sql, params).then(
+    (value) => {
+      responseOk(res, value);
     },
     (reason: Error) => {
       badRequest(res, reason.message);
@@ -97,7 +118,27 @@ router.get('/application/:applicationID', (req: Request, res: Response) => {
 
 // Get a single course row by courseID
 router.get('/course/:courseID', (req: Request, res: Response) => {
-  getSingleRow(req, res, 'Course', 'courseID');
+  const sql = `SELECT c.courseID, c.courseName, c.enrolmentEstimate, c.enrolmentFinal, 
+               c.expectedWorkload, c.preferredMarkerCount, 
+               GROUP_CONCAT(u.firstName || ' ' || u.lastName || ' - ' || u.upi, ", ") AS [courseCoordinators], 
+               c.semesters, c.year, c.applicationClosingDate, c.courseInfoDeadline, c.markerAssignmentDeadline, 
+               c.markerPrefDeadline, c.isPublished, c.otherNotes 
+               FROM Course c, CourseCoordinatorCourse ccc, User u
+               WHERE c.courseID = ccc.courseID
+               AND ccc.courseCoordinatorID = u.userID
+               AND c.courseID = ?
+               GROUP BY c.courseID`
+
+  const params = [req.params.courseID];
+
+  db.get(sql, params).then(
+    (value) => {
+      responseOk(res, value);
+    },
+    (reason: Error) => {
+      badRequest(res, reason.message);
+    }
+  );
 });
 
 // POST Insert a user
@@ -143,7 +184,7 @@ router.post('/user/', (req: Request, res: Response) => {
   );
 });
 
-// POST Insert a application
+// POST Insert an application
 router.post('/application/', (req: Request, res: Response) => {
   const errors = [];
 
@@ -187,81 +228,11 @@ router.post('/application/', (req: Request, res: Response) => {
   );
 });
 
-// POST Insert a course
-router.post('/course/', (req: Request, res: Response) => {
-  const errors = [];
-
-  const data = req.body as CourseRequest;
-
-  if (!data.courseID) {
-    errors.push('No courseID specified');
-  }
-  if (!data.courseName) {
-    errors.push('No courseName specified');
-  }
-  if (!data.year) {
-    errors.push('No year specified');
-  }
-  if (!data.whichSemestersField) {
-    errors.push('No whichSemestersField specified');
-  }
-  if (!data.isPublished) {
-    errors.push('No isPublished specified');
-  }
-  if (!data.enrolmentEstimate) {
-    errors.push('No enrolmentEstimate specified');
-  }
-  if (!data.enrolmentFinal) {
-    errors.push('No enrolmentFinal specified');
-  }
-  if (!data.workload) {
-    errors.push('No workload specified');
-  }
-  if (!data.preferredMarkers) {
-    errors.push('No preferredMarkers specified');
-  }
-
-  if (errors.length) {
-    res.status(400).json({ error: errors.join(',') });
-    return;
-  }
-
-  const sql =
-    'INSERT INTO Course (courseID, courseName, year, whichSemestersField, isPublished, ' +
-    'enrolmentEstimate, enrolmentFinal, workload, preferredMarkers, courseInfoDeadline, applicationDeadline, ' +
-    'markerPrefDeadline, markerAssignmentDeadline, otherTasks) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
-  const params = [
-    data.courseID,
-    data.courseName,
-    data.year,
-    data.whichSemestersField,
-    data.isPublished,
-    data.enrolmentEstimate,
-    data.enrolmentFinal,
-    data.workload,
-    data.preferredMarkers,
-    data.courseInfoDeadline ? data.courseInfoDeadline : '',
-    data.applicationDeadline ? data.applicationDeadline : '',
-    data.markerPrefDeadline ? data.markerPrefDeadline : '',
-    data.markerAssignmentDeadline ? data.markerAssignmentDeadline : '',
-    data.otherTasks ? data.otherTasks : '',
-  ];
-
-  db.run(sql, params).then(
-    () => {
-      responseOk(res, data);
-    },
-    (reason: Error) => {
-      badRequest(res, reason.message);
-    }
-  );
-});
-
 const handleApplicationInsert = async (data: ApplicationRequest) => {
   const sql =
-    'INSERT INTO Application (applicationID, markerID, year, whichSemestersField, ' +
-    'curriculumVitae, academicRecord, hoursRequested, relevantExperience) VALUES ' +
-    '(?,?,?,?,?,?,?,?,?)';
+    `INSERT INTO Application (applicationID, markerID, year, whichSemestersField,
+    curriculumVitae, academicRecord, hoursRequested, relevantExperience) VALUES
+    (?,?,?,?,?,?,?,?,?)`;
   const params = [
     data.applicationID,
     data.markerID,

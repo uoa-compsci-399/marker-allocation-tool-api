@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 
 import db from '../db/DBController';
-import { CourseCoordinatorFull, RequestBody } from '../utils/RequestBody';
+import { CourseCoordinatorFull, RequestBody, CourseRequest, UserID } from '../utils/RequestBody';
 
 const router = express.Router();
 
@@ -108,6 +108,93 @@ router.get('/coursecoordinators', (req: Request, res: Response) => {
     }
   );
 });
+
+// POST Insert a course
+router.post('/course/', (req: Request, res: Response) => {
+  const errors = [];
+
+  const data = req.body as CourseRequest;
+
+  if (!data.courseName) {
+    errors.push('No courseName specified');
+  }
+  if (!data.enrolmentEstimate) {
+    errors.push('No enrolmentEstimate specified');
+  }
+  if (!data.enrolmentFinal) {
+    errors.push('No enrolmentFinal specified');
+  }
+  if (!data.expectedWorkload) {
+    errors.push('No expectedWorkload specified');
+  }
+  if (!data.preferredMarkerCount) {
+    errors.push('No preferredMarkerCount specified');
+  }
+  if (!data.semesters) {
+    errors.push('No semesters specified');
+  }
+  if (!data.year) {
+    errors.push('No year specified');
+  }
+  if (!data.isPublished) {
+    errors.push('No isPublished specified');
+  }
+
+  if (errors.length) {
+    res.status(400).json({ error: errors.join(',') });
+    return;
+  }
+
+  handleCourseInsert(data).then(
+    () => {
+      responseOk(res, data);
+    },
+    (reason: Error) => {
+      badRequest(res, reason.message);
+    }
+  );
+});
+
+const handleCourseInsert = async (data: CourseRequest) => {
+  const sql =
+    `INSERT INTO Course (courseID, courseName, enrolmentEstimate, enrolmentFinal, expectedWorkload,
+    preferredMarkerCount, semesters, year, applicationClosingDate, courseInfoDeadline, markerAssignmentDeadline, 
+    markerPrefDeadline, isPublished, otherNotes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+
+  const params = [
+    data.courseID,
+    data.courseName,
+    data.enrolmentEstimate,
+    data.enrolmentFinal,
+    data.expectedWorkload,
+    data.preferredMarkerCount,
+    data.semesters,
+    data.year,
+    data.applicationClosingDate? data.applicationClosingDate : '',
+    data.courseInfoDeadline ? data.courseInfoDeadline : '',
+    data.markerAssignmentDeadline ? data.markerAssignmentDeadline : '', 
+    data.markerPrefDeadline ? data.markerPrefDeadline : '',
+    data.isPublished,
+    data.otherNotes ? data.otherNotes : '',
+  ];
+
+  await db.run(sql, params);
+
+  for (const coordinator of data.courseCoordinators) {
+    const getUserID = 'SELECT userID FROM User WHERE upi = ?';
+
+    const userID: string = await db
+      .get(getUserID, [coordinator.split(" - ")[1]])
+      .then((value: UserID) => value.userID);
+
+    const query =
+      'INSERT INTO CourseCoordinatorCourse (courseCoordinatorID, courseID, permissions) VALUES ' +
+      '(?,?,?)';
+    const param = [userID, data.courseID, ''];
+
+    await db.run(query, param);
+  }
+};
 
 const responseOk = (res: Response, data: RequestBody) => {
   res.json({

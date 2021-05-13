@@ -7,18 +7,18 @@ export default class DBDataUtil {
       SQLiteUtil.createTable(db, 'Course', [
         '"courseID"	INTEGER PRIMARY KEY',
         '"courseName"	TEXT NOT NULL',
-        '"year"	INTEGER NOT NULL',
-        '"whichSemestersField"	INTEGER NOT NULL',
-        '"isPublished"	INTEGER NOT NULL',
         '"enrolmentEstimate"	INTEGER NOT NULL',
         '"enrolmentFinal"	INTEGER NOT NULL',
-        '"workload"	INTEGER NOT NULL',
-        '"preferredMarkers"	INTEGER NOT NULL',
+        '"expectedWorkload"	INTEGER NOT NULL',
+        '"preferredMarkerCount"	INTEGER NOT NULL',
+        '"semesters"	TEXT NOT NULL',
+        '"year"	INTEGER NOT NULL',
+        '"applicationClosingDate"	TEXT',
         '"courseInfoDeadline"	TEXT',
-        '"applicationDeadline"	TEXT',
-        '"markerPrefDeadline"	TEXT',
         '"markerAssignmentDeadline"	TEXT',
-        '"otherTasks"	TEXT',
+        '"markerPrefDeadline"	TEXT',
+        '"isPublished"	INTEGER NOT NULL',
+        '"otherNotes"	TEXT',
       ]);
 
       SQLiteUtil.createTable(db, 'Application', [
@@ -127,28 +127,28 @@ export default class DBDataUtil {
       });
 
       SQLiteUtil.insertMultipleIntoTableAsArrayObject(db, true, 'CourseCoordinatorCourse', {
-        courseCoordinatorCourseID: [1, 2],
-        courseCoordinatorID: [2, 2],
-        courseID: [1, 2],
-        permissions: [0b111, 0b111],
+        courseCoordinatorCourseID: [1, 2, 3],
+        courseCoordinatorID: [1, 2, 2],
+        courseID: [1, 1, 2],
+        permissions: [0b111, 0b111, 0b111],
       });
 
       // Create course data
       SQLiteUtil.insertMultipleIntoTableAsArrayObject(db, true, 'Course', {
         courseID: [1, 2, 3],
         courseName: ['COMPSCI 399', 'COMPSCI 101', 'COMPSCI 130'],
-        year: [2021, 2021, 2021],
-        whichSemestersField: [0b010, 0b010, 0b100],
-        isPublished: [1, 1, 1],
         enrolmentEstimate: [50, 300, 300],
         enrolmentFinal: [100, 500, 0],
-        workload: [50, 80, 80],
-        preferredMarkers: [2, 10, 8],
+        expectedWorkload: [50, 80, 80],
+        preferredMarkerCount: [2, 10, 8],
+        semesters: [0b010, 0b010, 0b100],
+        year: [2021, 2021, 2021],
+        applicationClosingDate: ['2021-01-01', '2022-01-01', '2021-07-01'],
         courseInfoDeadline: ['2021-01-01', '2021-01-01', '2021-03-01'],
-        applicationDeadline: ['2021-01-01', '2022-01-01', '2021-07-01'],
-        markerPrefDeadline: ['2021-01-01', '2021-01-01', '2021-07-10'],
         markerAssignmentDeadline: ['2021-01-01', '2021-01-01', '2021-07-20'],
-        otherTasks: ['Give good grades!', '', ''],
+        markerPrefDeadline: ['2021-01-01', '2021-01-01', '2021-07-10'],
+        isPublished: [1, 1, 1],
+        otherNotes: ['Give good grades!', '', ''],
       });
 
       // Create application data

@@ -49,22 +49,27 @@ export interface ApplicationRequest extends RequestBody {
 export interface CourseRequest extends RequestBody {
   courseID: string;
   courseName: string;
-  year: string;
-  whichSemestersField: string;
-  isPublished: string;
   enrolmentEstimate: string;
-  enrolmentFinal: string;
-  workload: string;
-  preferredMarkers: string;
+  enrolmentFinal: string; 
+  expectedWorkload: string;
+  preferredMarkerCount: string;
+  courseCoordinators: string[];
+  semesters: string;
+  year: string;
+  applicationClosingDate: string;
   courseInfoDeadline: string;
-  applicationDeadline: string;
-  markerPrefDeadline: string;
   markerAssignmentDeadline: string;
-  otherTasks: string;
+  markerPrefDeadline: string;
+  isPublished: string;
+  otherNotes: string;
 }
 
 export interface CourseID {
   courseID: string;
+}
+
+export interface UserID {
+  userID: string;
 }
 
 export interface ActiveCourse {
