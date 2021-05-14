@@ -92,14 +92,14 @@ export default class DBDataUtil {
     db.serialize(() => {
       // Create user data
       SQLiteUtil.insertMultipleIntoTableAsArrayObject(db, true, 'User', {
-        userID: [1, 2, 3, 4, 5],
-        firstName: ['Burkhard', 'Asma', 'Songyan', 'Darren', 'Jim'],
-        lastName: ['Wuensche', 'Shakil', 'Teng', 'Chen', 'Park'],
-        email: ['burkhard', 'asma', 'songyan', 'darren', 'jim'].map(
+        userID: [1, 2, 3, 4, 5, 6],
+        firstName: ['Burkhard', 'Asma', 'Songyan', 'Darren', 'Jim', 'Isaac'],
+        lastName: ['Wuensche', 'Shakil', 'Teng', 'Chen', 'Park', 'Kabel'],
+        email: ['burkhard', 'asma', 'songyan', 'darren', 'jim', 'isaac'].map(
           (fn) => `${fn}@aucklanduni.ac.nz`
         ),
-        upi: ['bwen001', 'asha001', 'sten001', 'cche001', 'jpar001'],
-        role: ['MarkerCoordinator', 'CourseCoordinator', 'Marker', 'Marker', 'Marker'],
+        upi: ['bwen001', 'asha001', 'sten001', 'cche001', 'jpar001', 'ikab001'],
+        role: ['MarkerCoordinator', 'CourseCoordinator', 'Marker', 'Marker', 'Marker', 'CourseCoordinator'],
       });
 
       // Create marker data
@@ -122,8 +122,8 @@ export default class DBDataUtil {
       });
 
       // Create course coordinator data
-      SQLiteUtil.insertIntoTableAsObject(db, true, 'CourseCoordinator', {
-        userID: 2,
+      SQLiteUtil.insertMultipleIntoTableAsArrayObject(db, true, 'CourseCoordinator', {
+        userID: [2, 6],
       });
 
       SQLiteUtil.insertMultipleIntoTableAsArrayObject(db, true, 'CourseCoordinatorCourse', {

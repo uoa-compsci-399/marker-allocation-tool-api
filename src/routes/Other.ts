@@ -179,15 +179,14 @@ const handleCourseInsert = async (data: CourseRequest) => {
 
   await db.run(sql, params);
 
-  for (const coordinator of data.courseCoordinators.split(",")) {
+  for (const coordinator of data.courseCoordinators.split(',')) {
     const getUserID = 'SELECT userID FROM User WHERE upi = ?';
 
     const userID: string = await db
       .get(getUserID, [coordinator.trim().split(' - ')[1]])
       .then((value: UserID) => value.userID);
 
-    const query =
-      `INSERT INTO CourseCoordinatorCourse (courseCoordinatorID, courseID, permissions) VALUES (?,?,?)`;
+    const query = `INSERT INTO CourseCoordinatorCourse (courseCoordinatorID, courseID, permissions) VALUES (?,?,?)`;
     const param = [userID, data.courseID, 0b111];
 
     await db.run(query, param);

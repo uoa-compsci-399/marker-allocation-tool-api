@@ -8,6 +8,7 @@ import {
   CourseID,
   ApplicationRequestPreAuth,
   Marker,
+  ActiveCourse
 } from '../utils/RequestBody';
 
 //TODO: Split this file into individual route files
@@ -81,7 +82,7 @@ router.get('/courses', (req: Request, res: Response) => {
 
 // Get a list of available/open courses
 router.get('/courses/available', (req: Request, res: Response) => {
-  const sql = `SELECT c.courseID
+  const sql = `SELECT c.courseName
                FROM Course c
                WHERE DATE('now') <= DATE(c.applicationClosingDate)`;
 
@@ -89,7 +90,15 @@ router.get('/courses/available', (req: Request, res: Response) => {
 
   db.all(sql, params).then(
     (value) => {
-      responseOk(res, value);
+      const data: string[] = [];
+      value.forEach((activeCourse: ActiveCourse) => {
+        data.push(activeCourse.courseName);
+      });
+
+      res.json({
+        message: 'success',
+        data: data,
+      });
     },
     (reason: Error) => {
       badRequest(res, reason.message);
