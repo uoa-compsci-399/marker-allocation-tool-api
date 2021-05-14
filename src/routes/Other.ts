@@ -179,7 +179,9 @@ const handleCourseInsert = async (data: CourseRequest) => {
 
   await db.run(sql, params);
 
-  for (const coordinator of data.courseCoordinators.split(',')) {
+  data.courseCoordinators = data.courseCoordinators.slice(1, -1)
+
+  for (const coordinator of data.courseCoordinators.split(', ')) {
     const getUserID = 'SELECT userID FROM User WHERE upi = ?';
 
     const userID: string = await db

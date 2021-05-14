@@ -99,7 +99,14 @@ export default class DBDataUtil {
           (fn) => `${fn}@aucklanduni.ac.nz`
         ),
         upi: ['bwen001', 'asha001', 'sten001', 'cche001', 'jpar001', 'ikab001'],
-        role: ['MarkerCoordinator', 'CourseCoordinator', 'Marker', 'Marker', 'Marker', 'CourseCoordinator'],
+        role: [
+          'MarkerCoordinator',
+          'CourseCoordinator',
+          'Marker',
+          'Marker',
+          'Marker',
+          'CourseCoordinator',
+        ],
       });
 
       // Create marker data

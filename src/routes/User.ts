@@ -8,7 +8,7 @@ import {
   CourseID,
   ApplicationRequestPreAuth,
   Marker,
-  ActiveCourse
+  ActiveCourse,
 } from '../utils/RequestBody';
 
 //TODO: Split this file into individual route files
