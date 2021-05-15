@@ -119,18 +119,20 @@ router.get('/application/:applicationID', (req: Request, res: Response) => {
 // Get a single course row by courseID
 router.get('/course/:courseID', (req: Request, res: Response) => {
   const sql = `SELECT c.courseID, c.courseName, c.enrolmentEstimate, c.enrolmentFinal, 
-               c.expectedWorkload, c.preferredMarkerCount, 
-               GROUP_CONCAT(u.firstName || ' ' || u.lastName, ", ") AS [courseCoordinatorsName],
-               GROUP_CONCAT(u.upi, ", ") AS [courseCoordinatorsUPI],  
-               c.semesters, c.year, c.applicationClosingDate, c.courseInfoDeadline, c.markerAssignmentDeadline, 
-               c.markerPrefDeadline, c.isPublished, c.otherNotes 
-               FROM Course c, CourseCoordinatorCourse ccc, User u
-               WHERE c.courseID = ccc.courseID
-               AND ccc.courseCoordinatorID = u.userID
-               AND c.courseID = ?
-               GROUP BY c.courseID`;
+                      c.expectedWorkload, c.preferredMarkerCount, 
+                      GROUP_CONCAT(u.firstName || ' ' || u.lastName, ', ') AS [courseCoordinatorsName], 
+                      GROUP_CONCAT(u.upi, ', ') AS [courseCoordinatorsUPI],
+                      c.semesters, c.year, sub.workload, c.applicationClosingDate, c.courseInfoDeadline, 
+                      c.markerAssignmentDeadline, c.markerPrefDeadline, c.isPublished, c.otherNotes 
+                FROM (SELECT c.courseID, '[' || GROUP_CONCAT('{"assignment": "' || wd.assignment || '", "workload": "' || wd.workload || '"}', ', ') || ']' AS [workload]
+                      FROM Course c LEFT JOIN WorkloadDistribution wd ON c.courseID = wd.courseID
+                      WHERE c.courseID = ?) sub
+                LEFT JOIN Course c ON sub.courseID = c.courseID
+                LEFT JOIN CourseCoordinatorCourse ccc ON c.courseID = ccc.courseID
+                LEFT JOIN User u ON ccc.courseCoordinatorID = u.userID
+                WHERE c.courseID = ?;`;
 
-  const params = [req.params.courseID];
+  const params = [req.params.courseID, req.params.courseID];
 
   db.get(sql, params).then(
     (value) => {

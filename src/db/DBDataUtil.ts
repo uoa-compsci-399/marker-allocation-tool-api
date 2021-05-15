@@ -85,6 +85,13 @@ export default class DBDataUtil {
         //'"isInAuckland"	INTEGER NOT NULL',
         '"lastApplicationID"	INTEGER REFERENCES "Application"("applicationID")',
       ]);
+
+      SQLiteUtil.createTable(db, 'WorkloadDistribution', [
+        '"workDistID"	INTEGER PRIMARY KEY',
+        '"courseID"	INTEGER NOT NULL REFERENCES "Course"("courseID")',
+        '"assignment"	TEXT NOT NULL',
+        '"workload"	INTEGER NOT NULL',
+      ]);
     });
   }
 
@@ -182,6 +189,13 @@ export default class DBDataUtil {
         status: [0, 0, 0, 1],
         hoursAllocated: [0, 0, 0, 0],
         // claimGradeAchieved: ['A+'],
+      });
+
+      SQLiteUtil.insertMultipleIntoTableAsArrayObject(db, true, 'WorkloadDistribution', {
+        workDistID: [1, 2, 3, 4],
+        courseID: [1, 1, 2, 2],
+        assignment: ['Report', 'Build', 'Report', 'Lab'],
+        workload: [10, 7, 8, 8],
       });
     });
   }

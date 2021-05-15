@@ -56,6 +56,7 @@ export interface CourseRequest extends RequestBody {
   courseCoordinators: string;
   semesters: string;
   year: string;
+  workloadDistributions: string;
   applicationClosingDate: string;
   courseInfoDeadline: string;
   markerAssignmentDeadline: string;

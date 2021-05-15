@@ -179,20 +179,31 @@ const handleCourseInsert = async (data: CourseRequest) => {
 
   await db.run(sql, params);
 
-  data.courseCoordinators = data.courseCoordinators.slice(1, -1)
+  data.courseCoordinators = data.courseCoordinators.slice(1, -1);
 
   for (const coordinator of data.courseCoordinators.split(', ')) {
     const getUserID = 'SELECT userID FROM User WHERE upi = ?';
 
     const userID: string = await db
-      .get(getUserID, [coordinator.trim().split(' - ')[1]])
+      .get(getUserID, [coordinator.trim().slice(1, -1).split(' - ')[1]])
       .then((value: UserID) => value.userID);
 
-    const query = `INSERT INTO CourseCoordinatorCourse (courseCoordinatorID, courseID, permissions) VALUES (?,?,?)`;
-    const param = [userID, data.courseID, 0b111];
+    const coordinatorInsert = `INSERT INTO CourseCoordinatorCourse (courseCoordinatorID, courseID, permissions) VALUES (?,?,?)`;
+    const coordinatorParam = [userID, data.courseID, 0b111];
 
-    await db.run(query, param);
+    await db.run(coordinatorInsert, coordinatorParam);
   }
+
+  /* eslint-disable */
+  const workload = JSON.parse(data.workloadDistributions);
+
+  for (let i = 0; i < workload.length; i++) {
+    const workloadInsert = `INSERT INTO WorkloadDistribution (courseID, assignment, workload) VALUES (?,?,?)`;
+    const workloadParam = [data.courseID, workload[i].assignment, workload[i].workload];
+
+    await db.run(workloadInsert, workloadParam);
+  }
+  /* eslint-enable */
 };
 
 const responseOk = (res: Response, data: RequestBody) => {
