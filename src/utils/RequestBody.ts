@@ -84,3 +84,8 @@ export interface CourseCoordinatorFull {
 export interface Marker {
   userID: number;
 }
+
+export interface WorkloadDistribution {
+  assignment: string;
+  workload: string;
+}

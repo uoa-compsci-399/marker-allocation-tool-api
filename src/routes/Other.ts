@@ -1,7 +1,13 @@
 import express, { Request, Response } from 'express';
 
 import db from '../db/DBController';
-import { CourseCoordinatorFull, RequestBody, CourseRequest, UserID } from '../utils/RequestBody';
+import {
+  CourseCoordinatorFull,
+  RequestBody,
+  CourseRequest,
+  UserID,
+  WorkloadDistribution,
+} from '../utils/RequestBody';
 
 const router = express.Router();
 
@@ -118,17 +124,8 @@ router.post('/course/', (req: Request, res: Response) => {
   if (!data.courseName) {
     errors.push('No courseName specified');
   }
-  if (!data.enrolmentEstimate) {
-    errors.push('No enrolmentEstimate specified');
-  }
-  if (!data.enrolmentFinal) {
-    errors.push('No enrolmentFinal specified');
-  }
-  if (!data.expectedWorkload) {
-    errors.push('No expectedWorkload specified');
-  }
-  if (!data.preferredMarkerCount) {
-    errors.push('No preferredMarkerCount specified');
+  if (!data.courseCoordinators) {
+    errors.push('No courseCoordinators specified');
   }
   if (!data.semesters) {
     errors.push('No semesters specified');
@@ -179,13 +176,11 @@ const handleCourseInsert = async (data: CourseRequest) => {
 
   await db.run(sql, params);
 
-  data.courseCoordinators = data.courseCoordinators.slice(1, -1);
-
-  for (const coordinator of data.courseCoordinators.split(', ')) {
+  for (const coordinator of data.courseCoordinators) {
     const getUserID = 'SELECT userID FROM User WHERE upi = ?';
 
     const userID: string = await db
-      .get(getUserID, [coordinator.trim().slice(1, -1).split(' - ')[1]])
+      .get(getUserID, [coordinator.trim().split(' - ')[1]])
       .then((value: UserID) => value.userID);
 
     const coordinatorInsert = `INSERT INTO CourseCoordinatorCourse (courseCoordinatorID, courseID, permissions) VALUES (?,?,?)`;
@@ -194,16 +189,13 @@ const handleCourseInsert = async (data: CourseRequest) => {
     await db.run(coordinatorInsert, coordinatorParam);
   }
 
-  /* eslint-disable */
-  const workload = JSON.parse(data.workloadDistributions);
-
-  for (let i = 0; i < workload.length; i++) {
+  const workloads = <WorkloadDistribution[]>JSON.parse(data.workloadDistributions);
+  for (const workload of workloads) {
     const workloadInsert = `INSERT INTO WorkloadDistribution (courseID, assignment, workload) VALUES (?,?,?)`;
-    const workloadParam = [data.courseID, workload[i].assignment, workload[i].workload];
+    const workloadParam = [data.courseID, workload.assignment, workload.workload];
 
     await db.run(workloadInsert, workloadParam);
   }
-  /* eslint-enable */
 };
 
 const responseOk = (res: Response, data: RequestBody) => {
