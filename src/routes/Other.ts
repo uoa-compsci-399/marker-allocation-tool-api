@@ -7,6 +7,7 @@ import {
   CourseRequest,
   UserID,
   WorkloadDistribution,
+  CourseID,
 } from '../utils/RequestBody';
 
 const router = express.Router();
@@ -153,12 +154,11 @@ router.post('/course/', (req: Request, res: Response) => {
 });
 
 const handleCourseInsert = async (data: CourseRequest) => {
-  const sql = `INSERT INTO Course (courseID, courseName, enrolmentEstimate, enrolmentFinal, expectedWorkload,
+  const sql = `INSERT INTO Course (courseName, enrolmentEstimate, enrolmentFinal, expectedWorkload,
     preferredMarkerCount, semesters, year, applicationClosingDate, courseInfoDeadline, markerAssignmentDeadline, 
-    markerPrefDeadline, isPublished, otherNotes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+    markerPrefDeadline, isPublished, otherNotes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
   const params = [
-    data.courseID,
     data.courseName,
     data.enrolmentEstimate,
     data.enrolmentFinal,
@@ -176,6 +176,12 @@ const handleCourseInsert = async (data: CourseRequest) => {
 
   await db.run(sql, params);
 
+  const courseID = await db
+    .get('SELECT courseID FROM Course ORDER BY courseID DESC limit 1', [])
+    .then((value: CourseID) => {
+      return value.courseID;
+    });
+
   for (const coordinator of data.courseCoordinators) {
     const getUserID = 'SELECT userID FROM User WHERE upi = ?';
 
@@ -184,7 +190,7 @@ const handleCourseInsert = async (data: CourseRequest) => {
       .then((value: UserID) => value.userID);
 
     const coordinatorInsert = `INSERT INTO CourseCoordinatorCourse (courseCoordinatorID, courseID, permissions) VALUES (?,?,?)`;
-    const coordinatorParam = [userID, data.courseID, 0b111];
+    const coordinatorParam = [userID, courseID, 0b111];
 
     await db.run(coordinatorInsert, coordinatorParam);
   }
@@ -192,7 +198,7 @@ const handleCourseInsert = async (data: CourseRequest) => {
   const workloads = <WorkloadDistribution[]>JSON.parse(data.workloadDistributions);
   for (const workload of workloads) {
     const workloadInsert = `INSERT INTO WorkloadDistribution (courseID, assignment, workload) VALUES (?,?,?)`;
-    const workloadParam = [data.courseID, workload.assignment, workload.workload];
+    const workloadParam = [courseID, workload.assignment, workload.workload];
 
     await db.run(workloadInsert, workloadParam);
   }
