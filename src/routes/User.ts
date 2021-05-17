@@ -120,11 +120,10 @@ router.get('/application/:applicationID', (req: Request, res: Response) => {
 router.get('/course/:courseID', (req: Request, res: Response) => {
   const sql = `SELECT c.courseID, c.courseName, c.enrolmentEstimate, c.enrolmentFinal, 
                       c.expectedWorkload, c.preferredMarkerCount, 
-                      GROUP_CONCAT(u.firstName || ' ' || u.lastName, ', ') AS [courseCoordinatorsName], 
-                      GROUP_CONCAT(u.upi, ', ') AS [courseCoordinatorsUPI],
-                      c.semesters, c.year, sub.workload, c.applicationClosingDate, c.courseInfoDeadline, 
+                      GROUP_CONCAT(u.firstName || ' ' || u.lastName  || ' - ' || u.upi, ', ') AS [courseCoordinators], 
+                      c.semesters, c.year, sub.workloadDistributions, c.applicationClosingDate, c.courseInfoDeadline, 
                       c.markerAssignmentDeadline, c.markerPrefDeadline, c.isPublished, c.otherNotes 
-                FROM (SELECT c.courseID, '[' || GROUP_CONCAT('{"assignment": "' || wd.assignment || '", "workload": "' || wd.workload || '"}', ', ') || ']' AS [workload]
+                FROM (SELECT c.courseID, '[' || GROUP_CONCAT('{assignment: "' || wd.assignment || '", workload: "' || wd.workload || '"}', ', ') || ']' AS [workloadDistributions]
                       FROM Course c LEFT JOIN WorkloadDistribution wd ON c.courseID = wd.courseID
                       WHERE c.courseID = ?) sub
                 LEFT JOIN Course c ON sub.courseID = c.courseID
