@@ -17,7 +17,7 @@ const saml_sp_options = {
 Object.assign(saml_sp_options, config.authn.samlSpExtra);
 const saml_sp = new saml2.ServiceProvider(saml_sp_options);
 
-// Create identity provider
+// Create logical identity provider
 const saml_idp_options = {
   sso_login_url: config.authn.ssoUrlLogin,
   sso_logout_url: config.authn.ssoUrlLogout,
@@ -52,8 +52,9 @@ router.get('/login', (req: Request, res: Response) => {
         return res.sendStatus(500);
       }
 
-      // VULNERABILITY: an attacker can visit this route repeatedly without completing the login flow
-      // adding an entry here each time.
+      /* VULNERABILITY: an attacker can visit this route repeatedly without completing the login
+       * flow, adding an entry here each time.
+       */
       requests[request_id] = {
         forwardTo: req.query.forwardTo as string,
       };
@@ -67,7 +68,7 @@ router.get('/login', (req: Request, res: Response) => {
 router.post('/assert', (req: Request, res: Response) => {
   // saml2-js index.d.ts specifies SAMLRequest: any; not much I can do about that
   /* eslint-disable */
-  const options: saml2.PostAssertOptions = { request_body: { SAMLRequest: req.body } };
+  const options: saml2.PostAssertOptions = { request_body: req.body };
   /* eslint-enable */
   saml_sp.post_assert(
     saml_idp,
@@ -81,7 +82,10 @@ router.post('/assert', (req: Request, res: Response) => {
       const request_id = saml_response.response_header.in_response_to;
       if (requests[request_id] == null) {
         // This is a response for a request we don't know about
-        return res.sendStatus(400);
+        res.sendStatus(400);
+        res.type('text/plain');
+        res.send(`Error: AssertResponse from SAML IdP was not in response to any recent request.`);
+        return;
       }
 
       //let name_id = saml_response.user.name_id;
@@ -90,29 +94,51 @@ router.post('/assert', (req: Request, res: Response) => {
       // Make columns for them in UserToken if implementing explicit logout.
 
       const attributes = saml_response.user.attributes || {};
-      const username_attr = attributes['http://schemas.auth0.com/username'];
-      if (username_attr == null) {
-        // The IdP didn't tell us who this is
-        return res.sendStatus(400);
-      }
+      attributes['__name_id'] = saml_response.user.name_id;
 
-      let username: string;
-      if (typeof username_attr != 'string') {
-        username = username_attr[0];
-      } else {
-        username = username_attr;
+      const userFields: Record<string, string> = {};
+      const attributeNameMap = config.authn.samlUserAttributeNameMap as Record<string, string>;
+
+      const missingFields: string[] = [];
+      ['upi', 'firstName', 'lastName', 'email', 'numericId'].forEach((field_name) => {
+        const field_attr = attributes[attributeNameMap[field_name]];
+
+        if (field_attr == null) {
+          missingFields.push(field_name);
+          return;
+        }
+
+        userFields[field_name] = typeof field_attr != 'string' ? field_attr[0] : field_attr;
+      });
+
+      if (missingFields.length > 0) {
+        res.sendStatus(400);
+        res.type('text/plain');
+        res.send(
+          'Error: AssertResponse from SAML IdP did not include required attribute(s):\n' +
+            missingFields
+              .map((field_name) => `${attributeNameMap[field_name]} for ${field_name}`)
+              .join('\n')
+        );
+        return;
       }
 
       let userId;
-      await db.run('SELECT * FROM User WHERE upi = ?', [username]).then(
+      await db.run('SELECT * FROM User WHERE upi = ?', [userFields['upi']]).then(
         (id) => {
           userId = id;
         },
         async () => {
           // This user does not exist; create them
-          const sql = 'INSERT INTO User (firstName, lastName, email, role) VALUES (?,?,?,?)';
-          // TODO: Correctly get these data
-          const params = ['First', 'Last', 'firstlast@email.com', 'Marker'];
+          const sql = 'INSERT INTO User (firstName, lastName, email, upi, role) VALUES (?,?,?,?)';
+
+          const params = [
+            userFields['firstName'],
+            userFields['lastName'],
+            userFields['email'],
+            userFields['upi'],
+            'Marker',
+          ];
 
           await db.run(sql, params).then(
             (id) => {
@@ -129,7 +155,14 @@ router.post('/assert', (req: Request, res: Response) => {
         return res.sendStatus(500);
       }
 
-      const tokenValue = crypto.randomBytes(32).toString('base64');
+      /* Security [minor]: do not create tokenValue using an encoding which may emit RFC 3986
+       * section 2.2 Reserved Characters. One such encoding is base64. These characters are
+       * percent-encoded when a value is transmitted in a header such as Set-Cookie. A
+       * percent-encoded character occupies more bytes on the wire and more entropy. Therefore,
+       * such encodings allow a passive evesdropper to infer some information about the content of
+       * tokenValue.
+       */
+      const tokenValue = crypto.randomBytes(32).toString('hex');
       const sql = 'INSERT INTO UserToken (userID, createdAt, value) VALUES (?,?,?)';
       const params = [userId, new Date().toISOString(), tokenValue];
 
@@ -149,7 +182,11 @@ router.post('/assert', (req: Request, res: Response) => {
       delete requests[request_id];
 
       res.cookie('authn_token', tokenValue, { httpOnly: true, secure: true, sameSite: 'lax' });
+
       res.redirect(forwardTo);
+      // Replace redirect above with the following for debugging
+      //res.type('text/plain');
+      //res.send(require('util').inspect(saml_response));
     }
   );
 });

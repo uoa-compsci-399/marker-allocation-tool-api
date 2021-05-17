@@ -19,17 +19,26 @@ module.exports = {
   authn: {
     samlSpKey_path: 'sp-key.pem',
     samlSpCert_path: 'sp-cert.pem',
-    samlIdpCert_path: 'idp-cert-auth0.pem',
+    samlIdpCert_path: 'idp-cert-classe.pem',
 
+    // Switch to this value when testing, then back before committing
+    //samlSpUrlPrefix: 'http://localhost:8000/api/authn',
     samlSpUrlPrefix: 'https://dev.classe.wumbo.co.nz/api/authn',
+
     samlSpExtra: {
       allow_unencrypted_assertion: true,
     },
 
-    ssoUrlLogin:
-      'https://mock-uoa-idp-for-classe.au.auth0.com/samlp/ydyrEwoCwuk8l7Yw1MhwcTkcoBQl0XJx',
-    ssoUrlLogout:
-      'https://mock-uoa-idp-for-classe.au.auth0.com/samlp/ydyrEwoCwuk8l7Yw1MhwcTkcoBQl0XJx/logout',
+    /* The authentication system expects a number of attributes in the login assertion response
+     * from the IdP: 'upi', 'firstName', 'lastName', 'email', 'numericId'.
+     * Use this property to remap those names to the actual names in the IdP login response.
+     * If you need to map to name_id, which is not an attribute, refer to it as if it were an
+     * attribute called '__name_id'.
+     */
+    //samlUserAttributeNameMap: { numericId: 'studentId' },
+
+    ssoUrlLogin: 'https://dev-idp.classe.wumbo.co.nz/saml/sso',
+    ssoUrlLogout: 'https://dev-idp.classe.wumbo.co.nz/saml/slo',
     samlIdpExtra: {},
   },
 };

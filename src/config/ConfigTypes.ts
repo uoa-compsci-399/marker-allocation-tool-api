@@ -14,6 +14,14 @@ export interface AuthnConfiguration {
   samlSpUrlPrefix: string;
   samlSpExtra?: Record<string, any>;
 
+  samlUserAttributeNameMap: {
+    upi?: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    numericId?: string;
+  };
+
   ssoUrlLogin: string;
   ssoUrlLogout: string;
   samlIdpExtra?: Record<string, any>;
