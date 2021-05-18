@@ -4,6 +4,7 @@ import express, { Request, Response } from 'express';
 import saml2 from 'saml2-js';
 
 import db from '../../db/DBController';
+import { UserRow } from '../../db/DatabaseTypes';
 
 import config from '../../config/ConfigLoader';
 
@@ -82,7 +83,7 @@ router.post('/assert', (req: Request, res: Response) => {
       const request_id = saml_response.response_header.in_response_to;
       if (requests[request_id] == null) {
         // This is a response for a request we don't know about
-        res.sendStatus(400);
+        res.status(400);
         res.type('text/plain');
         res.send(`Error: AssertResponse from SAML IdP was not in response to any recent request.`);
         return;
@@ -112,7 +113,7 @@ router.post('/assert', (req: Request, res: Response) => {
       });
 
       if (missingFields.length > 0) {
-        res.sendStatus(400);
+        res.status(400);
         res.type('text/plain');
         res.send(
           'Error: AssertResponse from SAML IdP did not include required attribute(s):\n' +
@@ -123,36 +124,31 @@ router.post('/assert', (req: Request, res: Response) => {
         return;
       }
 
-      let userId;
-      await db.run('SELECT * FROM User WHERE upi = ?', [userFields['upi']]).then(
-        (id) => {
-          userId = id;
-        },
-        async () => {
-          // This user does not exist; create them
-          const sql = 'INSERT INTO User (firstName, lastName, email, upi, role) VALUES (?,?,?,?)';
+      let userId = -1;
+      userId = await db
+        .get('SELECT userID FROM User WHERE upi = ?', [userFields['upi']])
+        .then((user: UserRow) => user.userID);
 
-          const params = [
-            userFields['firstName'],
-            userFields['lastName'],
-            userFields['email'],
-            userFields['upi'],
-            'Marker',
-          ];
+      if (userId == 0) {
+        // This user does not exist; create them
+        const sql = 'INSERT INTO User (firstName, lastName, email, upi, role) VALUES (?,?,?,?,?)';
 
-          await db.run(sql, params).then(
-            (id) => {
-              userId = id;
-            },
-            (err: Error) => {
-              console.error(err.message);
-            }
-          );
-        }
-      );
+        const params = [
+          userFields['firstName'],
+          userFields['lastName'],
+          userFields['email'],
+          userFields['upi'],
+          'Marker',
+        ];
 
-      if (userId == null) {
-        return res.sendStatus(500);
+        userId = await db.run(sql, params).then((id) => id.id);
+      }
+
+      if (userId == null || userId == 0) {
+        res.status(500);
+        res.type('text/plain');
+        res.send('Error: failed to create a user');
+        return;
       }
 
       /* Security [minor]: do not create tokenValue using an encoding which may emit RFC 3986
