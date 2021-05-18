@@ -5,7 +5,7 @@ export default class DBDataUtil {
   static createTables(db: sqlite3.Database): void {
     db.serialize(() => {
       SQLiteUtil.createTable(db, 'Course', [
-        '"courseID"	INTEGER PRIMARY KEY AUTOINCREMENT',
+        '"courseID"	INTEGER PRIMARY KEY',
         '"courseName"	TEXT NOT NULL',
         '"enrolmentEstimate"	INTEGER NOT NULL',
         '"enrolmentFinal"	INTEGER NOT NULL',
