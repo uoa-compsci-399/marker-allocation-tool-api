@@ -11,7 +11,7 @@ export default class DBDataUtil {
         '"enrolmentFinal"	INTEGER NOT NULL',
         '"expectedWorkload"	INTEGER NOT NULL',
         '"preferredMarkerCount"	INTEGER NOT NULL',
-        '"semesters"	TEXT NOT NULL',
+        '"semesters" INTEGER NOT NULL',
         '"year"	INTEGER NOT NULL',
         '"applicationClosingDate"	TEXT',
         '"courseInfoDeadline"	TEXT',

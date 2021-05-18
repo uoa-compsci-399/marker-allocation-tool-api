@@ -131,7 +131,7 @@ router.post('/course/', (req: Request, res: Response) => {
   if (!data.year) {
     errors.push('No year specified');
   }
-  if (!data.isPublished) {
+  if (data.isPublished == null) {
     errors.push('No isPublished specified');
   }
 
