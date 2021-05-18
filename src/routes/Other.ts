@@ -72,7 +72,7 @@ router.get('/course/:courseID/application/total', (req: Request, res: Response) 
 
 // Get a count of the remaining number of marker spots open for a course
 router.get('/course/:courseID/application/open', (req: Request, res: Response) => {
-  const sql = `SELECT (SELECT preferredMarkers
+  const sql = `SELECT (SELECT preferredMarkerCount
                        FROM Course
                        WHERE courseID = ?) - COUNT(ac.applicationCourseID) AS [count]
                FROM Course c LEFT JOIN ApplicationCourse ac
@@ -124,6 +124,9 @@ router.post('/course/', (req: Request, res: Response) => {
 
   if (!data.courseName) {
     errors.push('No courseName specified');
+  }
+  if (!data.preferredMarkerCount) {
+    errors.push('No preferredMarkerCount specified');
   }
   if (!data.semesters) {
     errors.push('No semesters specified');
