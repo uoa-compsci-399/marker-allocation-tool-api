@@ -127,7 +127,7 @@ router.post('/assert', (req: Request, res: Response) => {
       let userId = -1;
       userId = await db
         .get('SELECT userID FROM User WHERE upi = ?', [userFields['upi']])
-        .then((user: UserRow) => user.userID);
+        .then((user: UserRow) => (user ? user.userID : 0));
 
       if (userId == 0) {
         // This user does not exist; create them
