@@ -56,6 +56,11 @@ router.get('/applications', (req: Request, res: Response) => {
   getAllData(req, res, 'Application');
 });
 
+// Get a list of markers
+router.get('/markers', (req: Request, res: Response) => {
+  getAllData(req, res, 'Marker');
+});
+
 // Get a list of courses
 router.get('/courses', (req: Request, res: Response) => {
   const sql = `SELECT c.courseID, c.courseName, c.enrolmentEstimate, c.enrolmentFinal, 
@@ -114,6 +119,11 @@ router.get('/user/:userID', (req: Request, res: Response) => {
 // Get a single application row by applicationID
 router.get('/application/:applicationID', (req: Request, res: Response) => {
   getSingleRow(req, res, 'Application', 'applicationID');
+});
+
+// Get a single marker row by userID
+router.get('/marker/:userID', (req: Request, res: Response) => {
+  getSingleRow(req, res, 'Marker', 'userID');
 });
 
 // Get a single course row by courseID
