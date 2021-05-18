@@ -125,9 +125,6 @@ router.post('/course/', (req: Request, res: Response) => {
   if (!data.courseName) {
     errors.push('No courseName specified');
   }
-  if (!data.courseCoordinators) {
-    errors.push('No courseCoordinators specified');
-  }
   if (!data.semesters) {
     errors.push('No semesters specified');
   }
