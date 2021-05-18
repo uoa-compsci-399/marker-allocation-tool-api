@@ -123,7 +123,7 @@ router.get('/course/:courseID', (req: Request, res: Response) => {
                       GROUP_CONCAT(u.firstName || ' ' || u.lastName  || ' - ' || u.upi, ', ') AS [courseCoordinators], 
                       c.semesters, c.year, sub.workloadDistributions, c.applicationClosingDate, c.courseInfoDeadline, 
                       c.markerAssignmentDeadline, c.markerPrefDeadline, c.isPublished, c.otherNotes 
-                FROM (SELECT c.courseID, '[' || GROUP_CONCAT('{assignment: "' || wd.assignment || '", workload: "' || wd.workload || '"}', ', ') || ']' AS [workloadDistributions]
+                FROM (SELECT c.courseID, '{"data":' || '[' || GROUP_CONCAT('{"assignment": "' || wd.assignment || '", "workload": "' || wd.workload || '"}', ', ') || ']' || '}' AS [workloadDistributions]
                       FROM Course c LEFT JOIN WorkloadDistribution wd ON c.courseID = wd.courseID
                       WHERE c.courseID = ?) sub
                 LEFT JOIN Course c ON sub.courseID = c.courseID
