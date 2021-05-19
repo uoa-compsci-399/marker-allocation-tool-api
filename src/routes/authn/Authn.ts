@@ -35,12 +35,26 @@ router.get('/metadata.xml', (req: Request, res: Response) => {
   res.send(saml_sp.create_metadata());
 });
 
-interface ServerSideRequestInfo {
+// If your security policy requires that the user completes the authentication flow with the same
+// parameters as they began it with (user agent, internet address, etc.), use this structure to
+// store those parameters for enforcement later.
+interface AuthnRequestTicket {
+  initiatedTime: number;
   forwardTo: string;
 }
 
 // Indexed by SAML request_id
-const requests: Record<string, ServerSideRequestInfo> = {};
+const login_request_tickets: Record<string, AuthnRequestTicket> = {};
+
+setInterval(function AuthnRequestTicketWatchdog() {
+  const now = new Date().valueOf();
+  Object.keys(login_request_tickets).forEach((request_id) => {
+    const ticket_age = now - login_request_tickets[request_id].initiatedTime;
+    if (ticket_age > config.authn.loginRoundTripTimeoutMs) {
+      delete login_request_tickets[request_id];
+    }
+  });
+}, config.authn.loginRoundTripTimeoutMs);
 
 // Starting point for login
 router.get('/login', (req: Request, res: Response) => {
@@ -53,10 +67,8 @@ router.get('/login', (req: Request, res: Response) => {
         return res.sendStatus(500);
       }
 
-      /* VULNERABILITY: an attacker can visit this route repeatedly without completing the login
-       * flow, adding an entry here each time.
-       */
-      requests[request_id] = {
+      login_request_tickets[request_id] = {
+        initiatedTime: new Date().valueOf(),
         forwardTo: req.query.forwardTo as string,
       };
 
@@ -80,8 +92,16 @@ router.post('/assert', (req: Request, res: Response) => {
         return res.sendStatus(500);
       }
 
-      const request_id = saml_response.response_header.in_response_to;
-      if (requests[request_id] == null) {
+      const original_request_id = saml_response.response_header.in_response_to;
+      const request_ticket = login_request_tickets[original_request_id];
+      let original_request_valid = true;
+      if (request_ticket == null) original_request_valid = false;
+      if (original_request_valid) {
+        const idp_rtt_ms = new Date().valueOf() - request_ticket.initiatedTime;
+        original_request_valid = idp_rtt_ms < config.authn.loginRoundTripTimeoutMs;
+      }
+
+      if (!original_request_valid) {
         // This is a response for a request we don't know about
         res.status(400);
         res.type('text/plain');
@@ -91,7 +111,7 @@ router.post('/assert', (req: Request, res: Response) => {
 
       //let name_id = saml_response.user.name_id;
       //let session_index = saml_response.user.session_index;
-      // Explicit logout requires name_id and session_index.
+      // Explicit logout (IdP notified) requires name_id and session_index.
       // Make columns for them in UserToken if implementing explicit logout.
 
       const attributes = saml_response.user.attributes || {};
@@ -174,8 +194,14 @@ router.post('/assert', (req: Request, res: Response) => {
         return res.sendStatus(500);
       }
 
-      const forwardTo = requests[request_id].forwardTo || '/';
-      delete requests[request_id];
+      let forwardTo: string;
+      if (typeof request_ticket.forwardTo == 'string') {
+        forwardTo = request_ticket.forwardTo;
+      } else {
+        forwardTo = config.authn.defaultLandingPage;
+      }
+
+      delete login_request_tickets[original_request_id];
 
       res.cookie('authn_token', tokenValue, { httpOnly: true, secure: true, sameSite: 'lax' });
 

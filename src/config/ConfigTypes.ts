@@ -3,6 +3,8 @@ export interface CoreConfiguration {
 }
 
 export interface AuthnConfiguration {
+  defaultLandingPage: string;
+
   samlSpKey: string;
   samlSpCert: string;
   samlIdpCert: string;
@@ -21,6 +23,8 @@ export interface AuthnConfiguration {
     email?: string;
     numericId?: string;
   };
+
+  loginRoundTripTimeoutMs: number;
 
   ssoUrlLogin: string;
   ssoUrlLogout: string;

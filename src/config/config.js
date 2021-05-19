@@ -17,6 +17,9 @@
 
 module.exports = {
   authn: {
+    // Destination page after successful login when not otherwise set
+    defaultLandingPage: '/',
+
     samlSpKey_path: 'sp-key.pem',
     samlSpCert_path: 'sp-cert.pem',
     samlIdpCert_path: 'idp-cert-classe.pem',
@@ -29,6 +32,10 @@ module.exports = {
       allow_unencrypted_assertion: true,
     },
 
+    ssoUrlLogin: 'https://dev-idp.classe.wumbo.co.nz/saml/sso',
+    ssoUrlLogout: 'https://dev-idp.classe.wumbo.co.nz/saml/slo',
+    samlIdpExtra: {},
+
     /* The authentication system expects a number of attributes in the login assertion response
      * from the IdP: 'upi', 'firstName', 'lastName', 'email', 'numericId'.
      * Use this property to remap those names to the actual names in the IdP login response.
@@ -37,8 +44,9 @@ module.exports = {
      */
     //samlUserAttributeNameMap: { numericId: 'studentId' },
 
-    ssoUrlLogin: 'https://dev-idp.classe.wumbo.co.nz/saml/sso',
-    ssoUrlLogout: 'https://dev-idp.classe.wumbo.co.nz/saml/slo',
-    samlIdpExtra: {},
+    // Users must complete logging in within this long after starting to.
+    // Extremely large values are inappropriate as this value also defines the period of the
+    // Authentication Request Ticket Watchdog, which prevents OOM-based DOS attacks.
+    loginRoundTripTimeoutMs: 15 * 60 * 1000,
   },
 };
