@@ -1,21 +1,20 @@
 import express, { Request, Response } from 'express';
 
-import db from '../../db/DBController';
-import { UserRow } from '../../db/DatabaseTypes';
+import AuthnUtil from '../../utils/AuthnUtil';
 
 const router = express.Router();
 
 router.get('/whoami', async (req: Request, res: Response) => {
-  const tokenValue = (req.cookies as Record<string, string>)['authn_token'];
-  if (tokenValue == null) return res.json({ authenticated: false });
+  const result = await AuthnUtil.getCurrentUser(req);
 
-  const sql = 'SELECT * FROM User WHERE userID = (SELECT userID FROM UserToken WHERE value = ?)';
-  const user = (await db.get(sql, [tokenValue])) as UserRow;
-  if (user == null) return res.json({ authenticated: false });
+  if (result === false) {
+    res.json({ authenticated: false });
+    return;
+  }
 
   res.json({
     authenticated: true,
-    user: user,
+    user: result,
   });
 });
 
