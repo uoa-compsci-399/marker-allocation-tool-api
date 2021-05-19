@@ -149,6 +149,7 @@ export default class DBDataUtil {
 
       // Create course data
       SQLiteUtil.insertMultipleIntoTableAsArrayObject(db, true, 'Course', {
+        courseID: [1, 2, 3],
         courseName: ['COMPSCI 399', 'COMPSCI 101', 'COMPSCI 130'],
         enrolmentEstimate: [50, 300, 300],
         enrolmentFinal: [100, 500, 0],

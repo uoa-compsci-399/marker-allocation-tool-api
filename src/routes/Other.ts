@@ -204,6 +204,112 @@ const handleCourseInsert = async (data: CourseRequest) => {
   }
 };
 
+// POST edit a course
+router.post('/course/edit', (req: Request, res: Response) => {
+  const errors = [];
+
+  const data = req.body as CourseRequest;
+
+  if (!data.courseID) {
+    errors.push('No courseID specified');
+  }
+  if (!data.courseName) {
+    errors.push('No courseName specified');
+  }
+  if (!data.preferredMarkerCount) {
+    errors.push('No preferredMarkerCount specified');
+  }
+  if (!data.semesters) {
+    errors.push('No semesters specified');
+  }
+  if (!data.year) {
+    errors.push('No year specified');
+  }
+  if (data.isPublished == null) {
+    errors.push('No isPublished specified');
+  }
+
+  if (errors.length) {
+    res.status(400).json({ error: errors.join(',') });
+    return;
+  }
+
+  handleCourseEdit(data).then(
+    () => {
+      responseOk(res, data);
+    },
+    (reason: Error) => {
+      badRequest(res, reason.message);
+    }
+  );
+});
+
+const handleCourseEdit = async (data: CourseRequest) => {
+  const sql = `UPDATE Course 
+               SET courseName = ?, 
+               enrolmentEstimate = ?, 
+               enrolmentFinal = ?, 
+               expectedWorkload = ?,
+               preferredMarkerCount = ?, 
+               semesters = ?, 
+               year = ?, 
+               applicationClosingDate = ?, 
+               courseInfoDeadline = ?, 
+               markerAssignmentDeadline = ?,
+               markerPrefDeadline = ?, 
+               isPublished = ?, 
+               otherNotes = ? 
+               WHERE courseID = ?`;
+
+  const params = [
+    data.courseName,
+    data.enrolmentEstimate,
+    data.enrolmentFinal,
+    data.expectedWorkload,
+    data.preferredMarkerCount,
+    data.semesters,
+    data.year,
+    data.applicationClosingDate ? data.applicationClosingDate : '',
+    data.courseInfoDeadline ? data.courseInfoDeadline : '',
+    data.markerAssignmentDeadline ? data.markerAssignmentDeadline : '',
+    data.markerPrefDeadline ? data.markerPrefDeadline : '',
+    data.isPublished,
+    data.otherNotes ? data.otherNotes : '',
+    data.courseID,
+  ];
+
+  await db.run(sql, params);
+
+  await db.run(`DELETE FROM CourseCoordinatorCourse 
+                WHERE courseID = ?`, [data.courseID])
+
+  await db.run(`DELETE FROM WorkloadDistribution 
+                WHERE courseID = ?`, [data.courseID])
+
+  const courseID = data.courseID;
+
+  for (const coordinator of data.courseCoordinators) {
+    const getUserID = 'SELECT userID FROM User WHERE upi = ?';
+
+    const userID: string = await db
+      .get(getUserID, [coordinator.trim().split(' - ')[1]])
+      .then((value: UserID) => value.userID);
+
+    const coordinatorInsert = `INSERT INTO CourseCoordinatorCourse (courseCoordinatorID, courseID, permissions) VALUES (?,?,?)`;
+    const coordinatorParam = [userID, courseID, 0b111];
+
+    await db.run(coordinatorInsert, coordinatorParam);
+  }
+
+  const workloads = <WorkloadDistribution[]>JSON.parse(data.workloadDistributions);
+  for (const workload of workloads) {
+    const workloadInsert = `INSERT INTO WorkloadDistribution (courseID, assignment, workload) VALUES (?,?,?)`;
+    const workloadParam = [courseID, workload.assignment, workload.workload];
+
+    await db.run(workloadInsert, workloadParam);
+  }
+};
+
 const responseOk = (res: Response, data: RequestBody) => {
   res.json({
     message: 'success',
