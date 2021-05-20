@@ -55,6 +55,13 @@ export default class DBDataUtil {
         '"role"	TEXT NOT NULL',
       ]);
 
+      SQLiteUtil.createTable(db, 'UserToken', [
+        '"userTokenID"	INTEGER PRIMARY KEY',
+        '"userID"	INTEGER NOT NULL REFERENCES "User"("userID")',
+        '"createdAt"	TEXT NOT NULL',
+        '"value"	TEXT NOT NULL',
+      ]);
+
       SQLiteUtil.createTable(db, 'MarkerCoordinator', [
         '"userID"	INTEGER PRIMARY KEY REFERENCES "User"("userID")',
         //'"markerCoordinatorAccess"	TEXT NOT NULL',
