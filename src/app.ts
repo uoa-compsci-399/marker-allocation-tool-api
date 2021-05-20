@@ -1,9 +1,11 @@
 import express, { Application, Request, Response } from 'express';
 import bodyParser from 'body-parser';
+
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
 import routes_user from './routes/User';
+import routes_other from './routes/Other';
 import routes_authn_core from './routes/authn/Authn';
 import routes_authn_util from './routes/authn/Util';
 
@@ -20,6 +22,8 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.use('/api/', routes_user);
+
+app.use('/api/', routes_other);
 
 app.use('/api/authn/', routes_authn_core);
 app.use('/api/authn/', routes_authn_util);
