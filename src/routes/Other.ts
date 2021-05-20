@@ -280,11 +280,17 @@ const handleCourseEdit = async (data: CourseRequest) => {
 
   await db.run(sql, params);
 
-  await db.run(`DELETE FROM CourseCoordinatorCourse 
-                WHERE courseID = ?`, [data.courseID])
+  await db.run(
+    `DELETE FROM CourseCoordinatorCourse 
+                WHERE courseID = ?`,
+    [data.courseID]
+  );
 
-  await db.run(`DELETE FROM WorkloadDistribution 
-                WHERE courseID = ?`, [data.courseID])
+  await db.run(
+    `DELETE FROM WorkloadDistribution 
+                WHERE courseID = ?`,
+    [data.courseID]
+  );
 
   const courseID = data.courseID;
 

@@ -89,7 +89,8 @@ router.get('/courses', (req: Request, res: Response) => {
 router.get('/courses/available', (req: Request, res: Response) => {
   const sql = `SELECT c.courseName
                FROM Course c
-               WHERE DATE('now') <= DATE(c.applicationClosingDate)`;
+               WHERE DATE('now') <= DATE(c.applicationClosingDate)
+               AND isPublished = 1`;
 
   const params: string[] = [];
 
@@ -195,6 +196,61 @@ router.post('/user/', (req: Request, res: Response) => {
     }
   );
 });
+
+// POST Insert a course coordinator
+router.post('/user/coordinator', (req: Request, res: Response) => {
+  const errors = [];
+
+  const data = req.body as UserRequest;
+
+  if (!data.userID) {
+    errors.push('No userID specified');
+  }
+  if (!data.firstName) {
+    errors.push('No firstName specified');
+  }
+  if (!data.lastName) {
+    errors.push('No lastName specified');
+  }
+  if (!data.email) {
+    errors.push('No email specified');
+  }
+  if (!data.upi) {
+    errors.push('No upi specified');
+  }
+  if (errors.length) {
+    res.status(400).json({ error: errors.join(',') });
+    return;
+  }
+
+  handleCoordinatorInsert(data).then(
+    () => {
+      responseOk(res, data);
+    },
+    (reason: Error) => {
+      badRequest(res, reason.message);
+    }
+  );
+});
+
+const handleCoordinatorInsert = async (data: UserRequest) => {
+  const sql = `INSERT INTO User (userID, firstName, lastName, email, upi, role) VALUES (?,?,?,?,?,?);`;
+  const params = [
+    data.userID,
+    data.firstName,
+    data.lastName,
+    data.email,
+    data.upi,
+    'CourseCoordinator',
+  ];
+
+  await db.run(sql, params);
+
+  const sql2 = `INSERT INTO CourseCoordinator (userID) VALUES (?)`;
+  const params2 = [data.userID];
+
+  await db.run(sql2, params2);
+};
 
 // POST Insert an application
 router.post('/application/', (req: Request, res: Response) => {
