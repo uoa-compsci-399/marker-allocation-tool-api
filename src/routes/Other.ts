@@ -8,6 +8,7 @@ import {
   UserID,
   WorkloadDistribution,
   CourseID,
+  StatusRequest,
 } from '../utils/RequestBody';
 
 const router = express.Router();
@@ -315,6 +316,43 @@ const handleCourseEdit = async (data: CourseRequest) => {
     await db.run(workloadInsert, workloadParam);
   }
 };
+
+// POST Insert a user
+router.post('/status/', (req: Request, res: Response) => {
+  const errors = [];
+
+  const data = req.body as StatusRequest;
+
+  if (!data.applicationID) {
+    errors.push('No applicationID specified');
+  }
+  if (!data.courseID) {
+    errors.push('No courseID specified');
+  }
+  if (!data.status) {
+    errors.push('No status specified');
+  }
+  if (errors.length) {
+    res.status(400).json({ error: errors.join(',') });
+    return;
+  }
+
+  const sql =
+    `UPDATE ApplicationCourse 
+     SET status = ?
+     WHERE applicationID = ?
+     AND courseID = ?`;
+  const params = [data.status, data.applicationID, data.courseID];
+
+  db.run(sql, params).then(
+    () => {
+      responseOk(res, data);
+    },
+    (reason: Error) => {
+      badRequest(res, reason.message);
+    }
+  );
+});
 
 const responseOk = (res: Response, data: RequestBody) => {
   res.json({
