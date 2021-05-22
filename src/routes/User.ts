@@ -233,13 +233,7 @@ router.post('/user/coordinator', (req: Request, res: Response) => {
 
 const handleCoordinatorInsert = async (data: UserRequest) => {
   const sql = `INSERT INTO User (firstName, lastName, email, upi, role) VALUES (?,?,?,?,?);`;
-  const params = [
-    data.firstName,
-    data.lastName,
-    data.email,
-    data.upi,
-    'CourseCoordinator',
-  ];
+  const params = [data.firstName, data.lastName, data.email, data.upi, 'CourseCoordinator'];
 
   await db.run(sql, params);
 
@@ -247,7 +241,7 @@ const handleCoordinatorInsert = async (data: UserRequest) => {
     .get('SELECT userID FROM User ORDER BY userID DESC LIMIT 1', [])
     .then((value: UserID) => {
       return value.userID;
-  });
+    });
 
   const sql2 = `INSERT INTO CourseCoordinator (userID) VALUES (?)`;
   const params2 = [userID];
