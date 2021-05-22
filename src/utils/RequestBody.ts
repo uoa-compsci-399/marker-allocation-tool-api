@@ -65,6 +65,12 @@ export interface CourseRequest extends RequestBody {
   otherNotes: string;
 }
 
+export interface StatusRequest extends RequestBody {
+  applicationID: string;
+  courseID: string;
+  status: string;
+}
+
 export interface CourseID {
   courseID: string;
 }
