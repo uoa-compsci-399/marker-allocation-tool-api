@@ -117,6 +117,26 @@ router.get('/coursecoordinators', (req: Request, res: Response) => {
   );
 });
 
+// Get a list of course coordinators and details
+router.get('/coursecoordinators/details', (req: Request, res: Response) => {
+  const sql = `SELECT u.userID, firstName, lastName, email, upi, IFNULL('[' || GROUP_CONCAT(courseName, ', ') || ']', '[]') AS [courses]
+               FROM User u 
+               LEFT JOIN CourseCoordinatorCourse ccc ON u.userID = ccc.courseCoordinatorID
+               LEFT JOIN Course c ON ccc.courseID = c.courseID
+               WHERE role = 'CourseCoordinator'
+               GROUP BY userID`;
+  const params: string[] = [];
+
+  db.all(sql, params).then(
+    (value) => {
+      responseOk(res, value);
+    },
+    (reason: Error) => {
+      badRequest(res, reason.message);
+    }
+  );
+});
+
 // POST Insert a course
 router.post('/course/', (req: Request, res: Response) => {
   const errors = [];
@@ -337,8 +357,7 @@ router.post('/status/', (req: Request, res: Response) => {
     return;
   }
 
-  const sql =
-    `UPDATE ApplicationCourse 
+  const sql = `UPDATE ApplicationCourse 
      SET status = ?
      WHERE applicationID = ?
      AND courseID = ?`;
