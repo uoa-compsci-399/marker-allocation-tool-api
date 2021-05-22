@@ -5,6 +5,7 @@ import {
   RequestBody,
   UserRequest,
   ApplicationRequest,
+  UserID,
   CourseID,
   ApplicationRequestPreAuth,
   Marker,
@@ -203,9 +204,6 @@ router.post('/user/coordinator', (req: Request, res: Response) => {
 
   const data = req.body as UserRequest;
 
-  if (!data.userID) {
-    errors.push('No userID specified');
-  }
   if (!data.firstName) {
     errors.push('No firstName specified');
   }
@@ -234,9 +232,8 @@ router.post('/user/coordinator', (req: Request, res: Response) => {
 });
 
 const handleCoordinatorInsert = async (data: UserRequest) => {
-  const sql = `INSERT INTO User (userID, firstName, lastName, email, upi, role) VALUES (?,?,?,?,?,?);`;
+  const sql = `INSERT INTO User (firstName, lastName, email, upi, role) VALUES (?,?,?,?,?);`;
   const params = [
-    data.userID,
     data.firstName,
     data.lastName,
     data.email,
@@ -246,11 +243,61 @@ const handleCoordinatorInsert = async (data: UserRequest) => {
 
   await db.run(sql, params);
 
+  const userID = await db
+    .get('SELECT userID FROM User ORDER BY userID DESC LIMIT 1', [])
+    .then((value: UserID) => {
+      return value.userID;
+  });
+
   const sql2 = `INSERT INTO CourseCoordinator (userID) VALUES (?)`;
-  const params2 = [data.userID];
+  const params2 = [userID];
 
   await db.run(sql2, params2);
 };
+
+// POST edit a coordinator
+router.post('/user/coordinator/edit', (req: Request, res: Response) => {
+  const errors = [];
+
+  const data = req.body as UserRequest;
+
+  if (!data.userID) {
+    errors.push('No userID specified');
+  }
+  if (!data.firstName) {
+    errors.push('No firstName specified');
+  }
+  if (!data.lastName) {
+    errors.push('No lastName specified');
+  }
+  if (!data.email) {
+    errors.push('No email specified');
+  }
+  if (!data.upi) {
+    errors.push('No upi specified');
+  }
+  if (errors.length) {
+    res.status(400).json({ error: errors.join(',') });
+    return;
+  }
+
+  const sql = `UPDATE User 
+               SET firstName = ?,
+                   lastName = ?,
+                   email = ?,
+                   upi = ?
+               WHERE userID = ?`;
+  const params = [data.firstName, data.lastName, data.email, data.upi, data.userID];
+
+  db.run(sql, params).then(
+    () => {
+      responseOk(res, data);
+    },
+    (reason: Error) => {
+      badRequest(res, reason.message);
+    }
+  );
+});
 
 // POST Insert an application
 router.post('/application/', (req: Request, res: Response) => {
