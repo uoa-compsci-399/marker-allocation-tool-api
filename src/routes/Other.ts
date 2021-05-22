@@ -119,7 +119,7 @@ router.get('/coursecoordinators', (req: Request, res: Response) => {
 
 // Get a list of course coordinators and details
 router.get('/coursecoordinators/details', (req: Request, res: Response) => {
-  const sql = `SELECT u.userID, firstName, lastName, email, upi, IFNULL('[' || GROUP_CONCAT(courseName, ', ') || ']', '[]') AS [courses]
+  const sql = `SELECT u.userID, firstName, lastName, email, upi, IFNULL(GROUP_CONCAT(courseName, ', '), '') AS [courses]
                FROM User u 
                LEFT JOIN CourseCoordinatorCourse ccc ON u.userID = ccc.courseCoordinatorID
                LEFT JOIN Course c ON ccc.courseID = c.courseID
