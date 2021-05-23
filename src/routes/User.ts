@@ -304,6 +304,7 @@ router.post('/application/', (req: Request, res: Response) => {
     'lastName',
     'studentId',
     'email',
+    'upi',
     'selectedCourses',
     'areaOfStudy',
     'dateOfBirth',
@@ -326,6 +327,13 @@ router.post('/application/', (req: Request, res: Response) => {
     res.status(400).json({ error: errors.join(', ') });
     return;
   }
+
+  requestData.availabilityConstraint = requestData.availabilityConstraint
+    ? requestData.availabilityConstraint
+    : '';
+  requestData.relevantExperience = requestData.relevantExperience
+    ? requestData.relevantExperience
+    : '';
 
   handleApplicationInsertPreAuth(requestData).then(
     () => {
@@ -385,10 +393,11 @@ const handleApplicationInsertPreAuth = async (requestData: ApplicationRequestPre
 
   if (!markerID) {
     const userID = (
-      await db.run('INSERT INTO User (firstName, lastName, email, role) VALUES (?,?,?,?)', [
+      await db.run('INSERT INTO User (firstName, lastName, email, upi, role) VALUES (?,?,?,?,?)', [
         requestData.firstName,
         requestData.lastName,
         requestData.email,
+        requestData.upi,
         'Marker',
       ])
     ).id;
@@ -413,13 +422,15 @@ const handleApplicationInsertPreAuth = async (requestData: ApplicationRequestPre
 
   const applicationID = (
     await db.run(
-      'INSERT INTO Application (markerID, year, availability, curriculumVitae, academicRecord, ' +
+      'INSERT INTO Application (markerID, year, availability, availabilityConstraint, relevantExperience, curriculumVitae, academicRecord, ' +
         'areaOfStudy, enrolmentStatus, workEligible, inAuckland, declaration) VALUES ' +
-        '(?,?,?,?,?,?,?,?,?,?)',
+        '(?,?,?,?,?,?,?,?,?,?,?,?)',
       [
         markerID,
         new Date().getFullYear(),
         availabilityField,
+        requestData.availabilityConstraint,
+        requestData.relevantExperience,
         Buffer.from(requestData.curriculumVitae),
         Buffer.from(requestData.academicRecord),
         requestData.areaOfStudy,

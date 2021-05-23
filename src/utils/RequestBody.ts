@@ -18,6 +18,7 @@ export interface ApplicationRequestPreAuth extends RequestBody {
   firstName: string;
   lastName: string;
   email: string;
+  upi: string;
   // Marker
   studentId: string;
   dateOfBirth: string;
@@ -25,6 +26,8 @@ export interface ApplicationRequestPreAuth extends RequestBody {
   areaOfStudy: string;
   enrolmentStatus: string;
   availability: string[];
+  availabilityConstraint: string;
+  relevantExperience: string;
   academicRecord: string;
   curriculumVitae: string;
   workEligible: number;
