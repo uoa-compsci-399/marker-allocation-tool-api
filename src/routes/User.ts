@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 
 import db from '../db/DBController';
+import { ApplicationRow } from '../db/DatabaseTypes';
 import {
   RequestBody,
   UserRequest,
@@ -143,6 +144,69 @@ router.get('/user/:userID', (req: Request, res: Response) => {
 // Get a single application row by applicationID
 router.get('/application/:applicationID', (req: Request, res: Response) => {
   getSingleRow(req, res, 'Application', 'applicationID');
+});
+
+router.get('/application/:applicationID/nofiles', (req: Request, res: Response) => {
+  const columnList = [
+    'applicationID',
+    'markerID',
+    'year',
+    'availability',
+    //'curriculumVitae',
+    //'academicRecord',
+    'areaOfStudy',
+    'enrolmentStatus',
+    'workEligible',
+    'inAuckland',
+    'declaration',
+  ].join(', ');
+
+  const sql = 'SELECT ' + columnList + ' FROM Application WHERE applicationID = ?';
+
+  db.get(sql, [req.params.applicationID]).then(
+    (value) => {
+      responseOk(res, value);
+    },
+    (reason: Error) => {
+      badRequest(res, reason.message);
+    }
+  );
+});
+
+router.get('/application/:applicationID/curriculumvitae', (req: Request, res: Response) => {
+  const sql = 'SELECT curriculumVitae FROM Application WHERE applicationID = ?';
+
+  db.get(sql, [req.params.applicationID]).then(
+    (value: ApplicationRow) => {
+      if (!value.curriculumVitae) {
+        res.sendStatus(400);
+        return;
+      }
+      res.type('application/pdf');
+      res.send(value.curriculumVitae);
+    },
+    (reason: Error) => {
+      badRequest(res, reason.message);
+    }
+  );
+});
+
+router.get('/application/:applicationID/academicrecord', (req: Request, res: Response) => {
+  const sql = 'SELECT academicRecord FROM Application WHERE applicationID = ?';
+
+  db.get(sql, [req.params.applicationID]).then(
+    (value: ApplicationRow) => {
+      if (!value.academicRecord) {
+        res.sendStatus(400);
+        return;
+      }
+      res.type('application/pdf');
+      res.send(value.academicRecord);
+    },
+    (reason: Error) => {
+      badRequest(res, reason.message);
+    }
+  );
 });
 
 // Get a single marker row by userID
