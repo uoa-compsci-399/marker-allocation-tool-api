@@ -164,7 +164,7 @@ export default class DBDataUtil {
         preferredMarkerCount: [2, 10, 8],
         semesters: [0b010, 0b010, 0b100],
         year: [2021, 2021, 2021],
-        applicationClosingDate: ['2021-01-01', '2022-01-01', '2021-07-01'],
+        applicationClosingDate: ['2021-01-01', '2022-01-01', '2020-07-01'],
         courseInfoDeadline: ['2021-01-01', '2021-01-01', '2021-03-01'],
         markerAssignmentDeadline: ['2021-01-01', '2021-01-01', '2021-07-20'],
         markerPrefDeadline: ['2021-01-01', '2021-01-01', '2021-07-10'],

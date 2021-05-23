@@ -125,7 +125,7 @@ router.get('/courses/available/details', (req: Request, res: Response) => {
 
   const params: string[] = [];
 
-  db.get(sql, params).then(
+  db.all(sql, params).then(
     (value) => {
       responseOk(res, value);
     },
