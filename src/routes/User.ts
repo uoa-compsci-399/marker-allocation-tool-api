@@ -113,6 +113,28 @@ router.get('/courses/available', (req: Request, res: Response) => {
   );
 });
 
+// Get a list of available/open courses and details
+router.get('/courses/available/details', (req: Request, res: Response) => {
+  const sql = `SELECT c.courseID, c.courseName, c.expectedWorkload, IFNULL(sub.workloadDistributions, '') AS [workloadDistributions]
+               FROM (SELECT c.courseID, '{"data":' || '[' || GROUP_CONCAT('{"assignment": "' || wd.assignment || '", "workload": "' || wd.workload || '"}', ', ') || ']' || '}' AS [workloadDistributions]
+                     FROM Course c LEFT JOIN WorkloadDistribution wd ON c.courseID = wd.courseID
+                     GROUP BY c.courseID) sub
+               LEFT JOIN Course c ON sub.courseID = c.courseID
+               WHERE DATE('now') <= DATE(c.applicationClosingDate)
+               AND isPublished = 1;`;
+
+  const params: string[] = [];
+
+  db.get(sql, params).then(
+    (value) => {
+      responseOk(res, value);
+    },
+    (reason: Error) => {
+      badRequest(res, reason.message);
+    }
+  );
+});
+
 // Get a single user row by userID
 router.get('/user/:userID', (req: Request, res: Response) => {
   getSingleRow(req, res, 'User', 'userID');
