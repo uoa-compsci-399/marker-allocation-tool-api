@@ -152,6 +152,8 @@ router.get('/application/:applicationID/nofiles', (req: Request, res: Response) 
     'markerID',
     'year',
     'availability',
+    'availabilityConstraint',
+    'relevantExperience',
     //'curriculumVitae',
     //'academicRecord',
     'areaOfStudy',

@@ -20,6 +20,8 @@ export interface Application {
   enrolmentStatus: string;
   workEligible: number;
   inAuckland: number;
+  availabilityConstraint: string;
+  relevantExperience: string;
   declaration: number;
 }
 
