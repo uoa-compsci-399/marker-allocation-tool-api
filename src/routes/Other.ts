@@ -15,7 +15,7 @@ const router = express.Router();
 
 // Get a list of applications for a course
 router.get('/course/:courseID/applications', (req: Request, res: Response) => {
-  const sql = `SELECT ac.courseID, u.firstName || ' ' || u.lastName AS [applicantName], ac.applicationID 
+  const sql = `SELECT ac.courseID, a.inAuckland, ac.status, u.firstName || ' ' || u.lastName AS [applicantName], u.email, ac.applicationID
                FROM Application a, ApplicationCourse ac, Marker m, User u
                WHERE ac.courseID = ?
                AND a.applicationID = ac.applicationID
