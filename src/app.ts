@@ -22,7 +22,6 @@ app.use(
     credentials: true,
   })
 );
-// app.use(cors());
 
 // Root endpoint
 app.get('/', (req: Request, res: Response) => {
