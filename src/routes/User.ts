@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 
 import db from '../db/DBController';
+import { ApplicationRow } from '../db/DatabaseTypes';
 import {
   RequestBody,
   UserRequest,
@@ -113,6 +114,28 @@ router.get('/courses/available', (req: Request, res: Response) => {
   );
 });
 
+// Get a list of available/open courses and details
+router.get('/courses/available/details', (req: Request, res: Response) => {
+  const sql = `SELECT c.courseID, c.courseName, c.expectedWorkload, IFNULL(sub.workloadDistributions, '') AS [workloadDistributions]
+               FROM (SELECT c.courseID, '{"data":' || '[' || GROUP_CONCAT('{"assignment": "' || wd.assignment || '", "workload": "' || wd.workload || '"}', ', ') || ']' || '}' AS [workloadDistributions]
+                     FROM Course c LEFT JOIN WorkloadDistribution wd ON c.courseID = wd.courseID
+                     GROUP BY c.courseID) sub
+               LEFT JOIN Course c ON sub.courseID = c.courseID
+               WHERE DATE('now') <= DATE(c.applicationClosingDate)
+               AND isPublished = 1;`;
+
+  const params: string[] = [];
+
+  db.all(sql, params).then(
+    (value) => {
+      responseOk(res, value);
+    },
+    (reason: Error) => {
+      badRequest(res, reason.message);
+    }
+  );
+});
+
 // Get a single user row by userID
 router.get('/user/:userID', (req: Request, res: Response) => {
   getSingleRow(req, res, 'User', 'userID');
@@ -121,6 +144,71 @@ router.get('/user/:userID', (req: Request, res: Response) => {
 // Get a single application row by applicationID
 router.get('/application/:applicationID', (req: Request, res: Response) => {
   getSingleRow(req, res, 'Application', 'applicationID');
+});
+
+router.get('/application/:applicationID/nofiles', (req: Request, res: Response) => {
+  const columnList = [
+    'applicationID',
+    'markerID',
+    'year',
+    'availability',
+    'availabilityConstraint',
+    'relevantExperience',
+    //'curriculumVitae',
+    //'academicRecord',
+    'areaOfStudy',
+    'enrolmentStatus',
+    'workEligible',
+    'inAuckland',
+    'declaration',
+  ].join(', ');
+
+  const sql = 'SELECT ' + columnList + ' FROM Application WHERE applicationID = ?';
+
+  db.get(sql, [req.params.applicationID]).then(
+    (value) => {
+      responseOk(res, value);
+    },
+    (reason: Error) => {
+      badRequest(res, reason.message);
+    }
+  );
+});
+
+router.get('/application/:applicationID/curriculumvitae', (req: Request, res: Response) => {
+  const sql = 'SELECT curriculumVitae FROM Application WHERE applicationID = ?';
+
+  db.get(sql, [req.params.applicationID]).then(
+    (value: ApplicationRow) => {
+      if (!value.curriculumVitae) {
+        res.sendStatus(400);
+        return;
+      }
+      res.type('application/pdf');
+      res.send(value.curriculumVitae);
+    },
+    (reason: Error) => {
+      badRequest(res, reason.message);
+    }
+  );
+});
+
+router.get('/application/:applicationID/academicrecord', (req: Request, res: Response) => {
+  const sql = 'SELECT academicRecord FROM Application WHERE applicationID = ?';
+
+  db.get(sql, [req.params.applicationID]).then(
+    (value: ApplicationRow) => {
+      if (!value.academicRecord) {
+        res.sendStatus(400);
+        return;
+      }
+      res.type('application/pdf');
+      res.send(value.academicRecord);
+    },
+    (reason: Error) => {
+      badRequest(res, reason.message);
+    }
+  );
 });
 
 // Get a single marker row by userID
@@ -304,6 +392,7 @@ router.post('/application/', (req: Request, res: Response) => {
     'lastName',
     'studentId',
     'email',
+    'upi',
     'selectedCourses',
     'areaOfStudy',
     'dateOfBirth',
@@ -326,6 +415,13 @@ router.post('/application/', (req: Request, res: Response) => {
     res.status(400).json({ error: errors.join(', ') });
     return;
   }
+
+  requestData.availabilityConstraint = requestData.availabilityConstraint
+    ? requestData.availabilityConstraint
+    : '';
+  requestData.relevantExperience = requestData.relevantExperience
+    ? requestData.relevantExperience
+    : '';
 
   handleApplicationInsertPreAuth(requestData).then(
     () => {
@@ -385,10 +481,11 @@ const handleApplicationInsertPreAuth = async (requestData: ApplicationRequestPre
 
   if (!markerID) {
     const userID = (
-      await db.run('INSERT INTO User (firstName, lastName, email, role) VALUES (?,?,?,?)', [
+      await db.run('INSERT INTO User (firstName, lastName, email, upi, role) VALUES (?,?,?,?,?)', [
         requestData.firstName,
         requestData.lastName,
         requestData.email,
+        requestData.upi,
         'Marker',
       ])
     ).id;
@@ -413,13 +510,15 @@ const handleApplicationInsertPreAuth = async (requestData: ApplicationRequestPre
 
   const applicationID = (
     await db.run(
-      'INSERT INTO Application (markerID, year, availability, curriculumVitae, academicRecord, ' +
+      'INSERT INTO Application (markerID, year, availability, availabilityConstraint, relevantExperience, curriculumVitae, academicRecord, ' +
         'areaOfStudy, enrolmentStatus, workEligible, inAuckland, declaration) VALUES ' +
-        '(?,?,?,?,?,?,?,?,?,?)',
+        '(?,?,?,?,?,?,?,?,?,?,?,?)',
       [
         markerID,
         new Date().getFullYear(),
         availabilityField,
+        requestData.availabilityConstraint,
+        requestData.relevantExperience,
         Buffer.from(requestData.curriculumVitae),
         Buffer.from(requestData.academicRecord),
         requestData.areaOfStudy,
