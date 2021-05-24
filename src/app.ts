@@ -14,7 +14,15 @@ const app: Application = express();
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(cookieParser());
-app.use(cors());
+app.use(
+  cors({
+    origin: (origin, cb) => {
+      cb(null, origin);
+    },
+    credentials: true,
+  })
+);
+// app.use(cors());
 
 // Root endpoint
 app.get('/', (req: Request, res: Response) => {
