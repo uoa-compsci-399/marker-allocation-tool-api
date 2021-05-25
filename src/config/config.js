@@ -26,8 +26,8 @@ module.exports = {
     samlIdpCert_path: 'idp-cert-classe.pem',
 
     // Switch to this value when testing, then back before committing
-    samlSpUrlPrefix: 'http://localhost:8000/api/authn',
-    // samlSpUrlPrefix: 'https://dev.classe.wumbo.co.nz/api/authn',
+    // samlSpUrlPrefix: 'http://localhost:8000/api/authn',
+    samlSpUrlPrefix: 'https://dev.classe.wumbo.co.nz/api/authn',
 
     samlSpExtra: {
       allow_unencrypted_assertion: true,
