@@ -18,8 +18,8 @@
 module.exports = {
   authn: {
     // Destination page after successful login when not otherwise set
-    // defaultLandingPage: '/',
-    defaultLandingPage: 'http://localhost:3000',
+    defaultLandingPage: '/',
+    // defaultLandingPage: 'http://localhost:3000',
 
     samlSpKey_path: 'sp-key.pem',
     samlSpCert_path: 'sp-cert.pem',
