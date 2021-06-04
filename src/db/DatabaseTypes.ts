@@ -28,3 +28,10 @@ export interface Application {
 export interface ApplicationRow extends Application {
   applicationID: number;
 }
+
+// For use with bit fields
+export enum Semester {
+  SummerSchool = 0x1,
+  SemesterOne = 0x2,
+  SemesterTwo = 0x4,
+}

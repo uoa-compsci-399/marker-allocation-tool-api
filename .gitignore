@@ -9,3 +9,4 @@ idp-cert-auth0.pem
 sp-cert.pem
 sp-key.pem
 idp-cert-classe.pem
+.code-workspace

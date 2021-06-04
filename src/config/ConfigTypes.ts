@@ -1,3 +1,5 @@
+import { LogicalDatabaseImage } from './LogicalTypes';
+
 export interface CoreConfiguration {
   port?: number;
 }
@@ -34,4 +36,5 @@ export interface AuthnConfiguration {
 export interface Configuration {
   core?: CoreConfiguration;
   authn: AuthnConfiguration;
+  initialDatabase?: LogicalDatabaseImage;
 }
