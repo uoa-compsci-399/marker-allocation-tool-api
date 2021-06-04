@@ -1,0 +1,11 @@
+node_modules/
+build/
+
+*.sqlite
+
+.idea
+.vscode
+idp-cert-auth0.pem
+sp-cert.pem
+sp-key.pem
+idp-cert-classe.pem
